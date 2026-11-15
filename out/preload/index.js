@@ -6,7 +6,11 @@ var IPC = {
 	dispatch: "ff:dispatch",
 	state: "ff:state",
 	window: "ff:window",
-	openExternal: "ff:open-external"
+	openExternal: "ff:open-external",
+	getCloud: "ff:get-cloud",
+	cloud: "ff:cloud",
+	cloudCommand: "ff:cloud-command",
+	ready: "ff:ready"
 };
 // src/preload/index.ts
 electron.contextBridge.exposeInMainWorld("api", {
@@ -21,5 +25,15 @@ electron.contextBridge.exposeInMainWorld("api", {
 		};
 	},
 	windowCommand: (command) => electron.ipcRenderer.send(IPC.window, command),
-	openExternal: (url) => electron.ipcRenderer.send(IPC.openExternal, url)
+	openExternal: (url) => electron.ipcRenderer.send(IPC.openExternal, url),
+	getCloud: () => electron.ipcRenderer.invoke(IPC.getCloud),
+	onCloud: (listener) => {
+		const handler = (_event, state) => listener(state);
+		electron.ipcRenderer.on(IPC.cloud, handler);
+		return () => {
+			electron.ipcRenderer.removeListener(IPC.cloud, handler);
+		};
+	},
+	cloudCommand: (command) => electron.ipcRenderer.invoke(IPC.cloudCommand, command),
+	ready: () => electron.ipcRenderer.send(IPC.ready)
 });

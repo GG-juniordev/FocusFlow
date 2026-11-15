@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { defineConfig } from 'electron-vite'
+import { defineConfig, loadEnv } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import type { Plugin } from 'vite'
@@ -17,9 +17,21 @@ const contentSecurityPolicy = (): Plugin => ({
     html.replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${CSP}" />`)
 })
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Optional Supabase settings from .env. Both the VITE_ names and the plain
+  // names from the Supabase dashboard are accepted. Missing = local-only app.
+  const env = loadEnv(mode, process.cwd(), '')
+  const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || ''
+  const supabaseKey =
+    env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY || ''
+
+  return {
   main: {
-    resolve: { alias: { '@shared': shared } }
+    resolve: { alias: { '@shared': shared } },
+    define: {
+      __SUPABASE_URL__: JSON.stringify(supabaseUrl),
+      __SUPABASE_KEY__: JSON.stringify(supabaseKey)
+    }
   },
   preload: {
     resolve: { alias: { '@shared': shared } }
@@ -30,4 +42,5 @@ export default defineConfig({
     },
     plugins: [react(), tailwindcss(), contentSecurityPolicy()]
   }
+}
 })

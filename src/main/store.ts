@@ -3,6 +3,7 @@ import path from 'node:path'
 import { DEFAULT_SETTINGS, defaultData, idleFocus } from '@shared/defaults'
 import { isHex } from '@shared/palette'
 import { randomUUID } from 'node:crypto'
+import { emptySyncMeta, normalizeSyncMeta, type SyncMeta } from './sync/core'
 import { defaultToolLibrary, sameTool, sanitizeLibrary, sanitizeTools } from '@shared/tools'
 import type { AppData, CalendarEvent, Category, FocusState, Settings, Task } from '@shared/types'
 
@@ -20,6 +21,8 @@ export interface WindowBounds {
 export interface Meta {
   window: { main?: WindowBounds; mini?: { x: number; y: number } }
   trayHintShown: boolean
+  /** Cloud sync bookkeeping: account link, change stamps, upload queue. */
+  sync: SyncMeta
 }
 
 interface Persisted {
@@ -37,7 +40,7 @@ export interface Loaded {
   source: LoadSource
 }
 
-const defaultMeta = (): Meta => ({ window: {}, trayHintShown: false })
+const defaultMeta = (): Meta => ({ window: {}, trayHintShown: false, sync: emptySyncMeta() })
 
 /**
  * A single JSON document on disk, written atomically (temp file + rename) so a
@@ -86,6 +89,17 @@ export class JsonStore {
     if (backup) return { ...normalize(backup, now), source: 'backup' }
 
     return { data: defaultData(), meta: defaultMeta(), source: 'fresh' }
+  }
+
+  /** Copy the current data file next to itself, e.g. data.before-cloud-<time>.json. */
+  copyAside(label: string): string | null {
+    try {
+      const target = path.join(this.dir, `data.${label}-${Date.now()}.json`)
+      fs.copyFileSync(this.file, target)
+      return target
+    } catch {
+      return null
+    }
   }
 
   /** Queue a write; rapid changes collapse into one. */
@@ -202,7 +216,7 @@ export function normalize(raw: unknown, now: number): { data: AppData; meta: Met
 
   const m = isDict(root.meta) ? root.meta : {}
   const w = isDict(m.window) ? m.window : {}
-  const meta: Meta = { window: {}, trayHintShown: bool(m.trayHintShown, false) }
+  const meta: Meta = { window: {}, trayHintShown: bool(m.trayHintShown, false), sync: normalizeSyncMeta(m.sync) }
   if (isDict(w.main) && ['x', 'y', 'width', 'height'].every((k) => typeof (w.main as Dict)[k] === 'number')) {
     const b = w.main
     meta.window.main = {

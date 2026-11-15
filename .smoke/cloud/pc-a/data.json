@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "savedAt": 1794769185444,
+  "data": {
+    "tasks": [
+      {
+        "id": "ad93dfaf-1500-41e0-b3a3-c36f3b95d7ff",
+        "title": "Guest again on A",
+        "notes": "",
+        "tools": [],
+        "estimateMin": 25,
+        "priority": "medium",
+        "categoryId": null,
+        "dueDate": null,
+        "status": "todo",
+        "order": 0,
+        "spentMs": 0,
+        "createdAt": 1794769185189,
+        "completedAt": null
+      }
+    ],
+    "events": [],
+    "categories": [
+      {
+        "id": "cat-work",
+        "name": "Work",
+        "color": "#4C8DF6"
+      },
+      {
+        "id": "cat-study",
+        "name": "Study",
+        "color": "#8B6CF0"
+      },
+      {
+        "id": "cat-personal",
+        "name": "Personal",
+        "color": "#23B5A6"
+      }
+    ],
+    "tools": [
+      {
+        "id": "builtin-vscode",
+        "label": "VS Code",
+        "url": "vscode://",
+        "preset": "vscode",
+        "icon": null
+      },
+      {
+        "id": "builtin-netbeans",
+        "label": "NetBeans",
+        "url": null,
+        "preset": "netbeans",
+        "icon": null
+      },
+      {
+        "id": "builtin-terminal",
+        "label": "Terminal",
+        "url": null,
+        "preset": "terminal",
+        "icon": null
+      },
+      {
+        "id": "builtin-google",
+        "label": "Google",
+        "url": "https://www.google.com",
+        "preset": "google",
+        "icon": null
+      },
+      {
+        "id": "builtin-youtube",
+        "label": "YouTube",
+        "url": "https://www.youtube.com",
+        "preset": "youtube",
+        "icon": null
+      },
+      {
+        "id": "builtin-docs",
+        "label": "Google Docs",
+        "url": "https://docs.google.com",
+        "preset": "docs",
+        "icon": null
+      },
+      {
+        "id": "builtin-figma",
+        "label": "Figma",
+        "url": "https://www.figma.com",
+        "preset": "figma",
+        "icon": null
+      },
+      {
+        "id": "builtin-github",
+        "label": "GitHub",
+        "url": "https://github.com",
+        "preset": "github",
+        "icon": null
+      }
+    ],
+    "settings": {
+      "launchAtStartup": true,
+      "startMinimized": false,
+      "alwaysOnTop": false,
+      "notificationSounds": true,
+      "theme": "dark",
+      "accent": "#23B5A6",
+      "bgColor": null,
+      "surfaceColor": null,
+      "language": "en",
+      "focusMin": 25,
+      "breakMin": 5
+    },
+    "focus": {
+      "taskId": null,
+      "phase": "focus",
+      "status": "idle",
+      "durationMs": 1500000,
+      "remainingMs": 1500000,
+      "endsAt": null,
+      "runStartedAt": null
+    }
+  },
+  "meta": {
+    "window": {
+      "main": {
+        "x": 370,
+        "y": 160,
+        "width": 1180,
+        "height": 760,
+        "maximized": false
+      }
+    },
+    "trayHintShown": false,
+    "sync": {
+      "userId": null,
+      "email": null,
+      "cursors": {},
+      "stamps": {
+        "categories": {},
+        "tools": {},
+        "tasks": {
+          "ad93dfaf-1500-41e0-b3a3-c36f3b95d7ff": "2026-11-15T18:59:45.189Z"
+        },
+        "events": {},
+        "settings": {}
+      },
+      "dirty": {
+        "categories": [],
+        "tools": [],
+        "tasks": [],
+        "events": [],
+        "settings": []
+      },
+      "deleted": {
+        "categories": {},
+        "tools": {},
+        "tasks": {},
+        "events": {},
+        "settings": {}
+      },
+      "lastSyncedAt": null
+    }
+  }
+}

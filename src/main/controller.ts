@@ -2,7 +2,9 @@ import { applyAction } from '@shared/model'
 import type { Action, AppData } from '@shared/types'
 import type { JsonStore, LoadSource, Meta } from './store'
 
-export type Listener = (next: AppData, prev: AppData) => void
+/** 'sync' marks changes that arrived from the cloud, so they are not queued for upload again. */
+export type Origin = 'local' | 'sync'
+export type Listener = (next: AppData, prev: AppData, origin: Origin) => void
 
 /**
  * Owns the application state. Every change goes through `dispatch`, which
@@ -30,7 +32,23 @@ export class Controller {
     this.data = next
     this.store.save(next, this.meta)
     this.arm()
-    for (const listener of this.listeners) listener(next, prev)
+    for (const listener of this.listeners) listener(next, prev, 'local')
+  }
+
+  /** Swap in a whole new state (cloud merges, clearing data on sign-out). */
+  replace(next: AppData, origin: Origin): void {
+    const prev = this.data
+    if (next === prev) return
+    this.data = next
+    this.store.save(next, this.meta)
+    this.arm()
+    for (const listener of this.listeners) listener(next, prev, origin)
+  }
+
+  /** Copy the data file aside before a change that discards local data. */
+  backup(label: string): string | null {
+    this.store.flush()
+    return this.store.copyAside(label)
   }
 
   updateMeta(change: (meta: Meta) => void): void {

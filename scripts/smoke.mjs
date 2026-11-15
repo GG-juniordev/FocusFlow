@@ -22,7 +22,7 @@ async function launch() {
   const app = await electron.launch({
     executablePath: electronPath,
     args: [root],
-    env: { ...process.env, FOCUSFLOW_DATA_DIR: dataDir }
+    env: { ...process.env, FOCUSFLOW_DATA_DIR: dataDir, FOCUSFLOW_SUPABASE_URL: 'off' }
   })
   const page = await app.firstWindow()
   page.on('console', (m) => {

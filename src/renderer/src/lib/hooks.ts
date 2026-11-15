@@ -104,7 +104,20 @@ export function useRevealOnShow<T extends HTMLElement>(
       const keyframes: Record<string, number[]> = { opacity: [from.opacity ?? 0, 1] }
       if (from.scale !== undefined) keyframes.scale = [from.scale, 1]
       if (from.y !== undefined) keyframes.y = [from.y, 0]
-      void animate(scope.current, keyframes, { duration, ease: [0.2, 0.8, 0.2, 1] })
+      const el = scope.current
+      const settle = (): void => {
+        el.style.opacity = '1'
+        el.style.transform = 'none'
+      }
+      try {
+        void animate(el, keyframes, { duration, ease: [0.2, 0.8, 0.2, 1] })
+      } catch {
+        settle()
+      }
+      // If the animation is interrupted or never runs, show the content anyway.
+      setTimeout(() => {
+        if (el.isConnected && Number(getComputedStyle(el).opacity) < 1 && el.getAnimations().length === 0) settle()
+      }, duration * 1000 + 400)
     }
     play()
     const onVisibility = (): void => {

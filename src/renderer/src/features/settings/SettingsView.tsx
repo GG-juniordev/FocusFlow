@@ -5,6 +5,8 @@ import { LANGUAGES } from '@shared/i18n'
 import type { Category, Settings } from '@shared/types'
 import { Button, IconButton, Segmented, Toggle, cn, inputBase, inputClass } from '@/components/ui'
 import { useData, useT } from '@/lib/hooks'
+import { AccountSection } from '@/features/cloud/AccountSection'
+import { ACCOUNT_ANCHOR } from '@/features/cloud/CloudPill'
 import { BackgroundPicker } from './BackgroundPicker'
 import { SavedTools } from './SavedTools'
 import { newId, useApp } from '@/state/useApp'
@@ -184,6 +186,12 @@ export function SettingsView() {
             />
           </Row>
         </Section>
+
+        <div id={ACCOUNT_ANCHOR} className="scroll-mt-4">
+          <Section title={t('set.account')}>
+            <AccountSection />
+          </Section>
+        </div>
 
         <Section title={t('set.tools')}>
           <SavedTools />

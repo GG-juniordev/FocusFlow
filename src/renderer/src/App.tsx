@@ -3,8 +3,11 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CalendarDays, Check, ListTodo, Pause, PictureInPicture2, Play, Settings, Target } from 'lucide-react'
 import { focusedTask } from '@shared/model'
 import type { MessageKey } from '@shared/i18n'
+import { BootScreen } from '@/components/ErrorBoundary'
 import { cn } from '@/components/ui'
 import { CalendarView } from '@/features/calendar/CalendarView'
+import { MigrationModal } from '@/features/cloud/CloudModals'
+import { CloudPill } from '@/features/cloud/CloudPill'
 import { Clock } from '@/features/focus/Dial'
 import { FocusView } from '@/features/focus/FocusView'
 import { SettingsView } from '@/features/settings/SettingsView'
@@ -27,12 +30,13 @@ const VIEWS: Record<View, ComponentType> = {
 
 export function App() {
   const ready = useBoot()
-  if (!ready) return null
+  if (!ready) return <BootScreen />
   return <Shell />
 }
 
 function Shell() {
   const view = useApp((s) => s.view)
+  const choosing = useApp((s) => s.cloud?.phase === 'choose')
   const Current = VIEWS[view]
   // Returning from Zen mode or the tray eases the dashboard back in.
   const scope = useRevealOnShow<HTMLDivElement>({ opacity: 0, scale: 0.985 }, 0.22)
@@ -42,8 +46,9 @@ function Shell() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Title bar: draggable, with room on the right for the native window buttons. */}
-        <header className="drag flex h-10 shrink-0 items-center pl-8 pr-[150px]">
+        <header className="drag flex h-10 shrink-0 items-center gap-3 pl-8 pr-[150px]">
           <AnimatePresence>{view !== 'focus' && <NowBar key="now" />}</AnimatePresence>
+          <CloudPill />
         </header>
         <main className="relative min-h-0 flex-1">
           <AnimatePresence mode="wait" initial={false}>
@@ -60,6 +65,8 @@ function Shell() {
           </AnimatePresence>
         </main>
       </div>
+      {/* First sign-in on a PC that already has data: ask before anything is transferred. */}
+      <AnimatePresence>{choosing && <MigrationModal key="migrate" />}</AnimatePresence>
     </div>
   )
 }
@@ -167,7 +174,7 @@ function NowBar() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
       transition={{ duration: 0.18 }}
-      className="no-drag flex h-7 max-w-full items-center gap-2 rounded-full border border-line bg-surface pl-3 pr-1 text-[13px]"
+      className="no-drag flex h-7 min-w-0 items-center gap-2 rounded-full border border-line bg-surface pl-3 pr-1 text-[13px]"
     >
       <span className="relative flex size-1.5 shrink-0">
         {running && <span className="absolute inset-0 animate-ping rounded-full bg-accent opacity-60" />}

@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { BrowserWindow, app, nativeTheme, screen, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, nativeTheme, screen, shell } from 'electron'
 import iconPath from '../../resources/icon.ico?asset&asarUnpack'
 import { windowChrome } from '@shared/palette'
 import { IPC, type AppData, type Settings } from '@shared/types'
@@ -42,13 +42,90 @@ function webPreferences(): Electron.WebPreferences {
   }
 }
 
+const READY_WAIT_MS = 6_000
+const MAX_RELOADS = 3
+const FALLBACK_RETRY_MS = 15_000
+
+const fallbackPage = (reason: string): string =>
+  'data:text/html;charset=utf-8,' +
+  encodeURIComponent(`<!doctype html><meta charset="utf-8"><title>FocusFlow</title>
+<body style="margin:0;height:100vh;display:grid;place-items:center;background:#161a24;color:#e9ecf3;font-family:Segoe UI,system-ui,sans-serif;-webkit-app-region:drag">
+<div style="max-width:520px;padding:32px"><h1 style="font-size:22px;margin:0 0 8px">FocusFlow could not show its window</h1>
+<p style="color:#98a1b5;font-size:15px;line-height:1.5;margin:0">The interface failed to load, so this page is shown instead of a blank window. Your tasks and settings are safe on this PC. FocusFlow retries automatically every few seconds. If this stays, quit from the tray icon and start it again.</p>
+<pre style="margin-top:16px;padding:12px;border-radius:8px;background:#11141c;color:#98a1b5;font-size:12px;white-space:pre-wrap">${reason.replace(/[<&]/g, ' ')}</pre></div></body>`)
+
+/**
+ * Load the UI into a window and make sure it actually appears.
+ *
+ * The page reports back once React has drawn something. If that does not happen
+ * in time (a failed load, or in development the dev server restarting mid-load),
+ * the page is reloaded a few times; after that a plain explanatory page is shown
+ * and loading is retried in the background. A window is never left blank.
+ */
 function load(win: BrowserWindow, hash?: string): void {
+  const wc = win.webContents
   const devUrl = process.env['ELECTRON_RENDERER_URL']
-  if (!app.isPackaged && devUrl) {
-    void win.loadURL(hash ? `${devUrl}#${hash}` : devUrl)
-  } else {
-    void win.loadFile(join(__dirname, '../renderer/index.html'), hash ? { hash } : undefined)
+  let reloads = 0
+  let showingFallback = false
+  let timer: NodeJS.Timeout | null = null
+
+  const loadApp = (): void => {
+    showingFallback = false
+    const done =
+      !app.isPackaged && devUrl
+        ? win.loadURL(hash ? `${devUrl}#${hash}` : devUrl)
+        : win.loadFile(join(__dirname, '../renderer/index.html'), hash ? { hash } : undefined)
+    // Failures are handled by did-fail-load below.
+    done.catch(() => {})
   }
+
+  const later = (ms: number, run: () => void): void => {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      timer = null
+      if (!win.isDestroyed()) run()
+    }, ms)
+  }
+
+  const recover = (reason: string): void => {
+    if (reloads < MAX_RELOADS) {
+      reloads++
+      console.warn(`FocusFlow: window did not come up (${reason}); reloading, attempt ${reloads}`)
+      later(reloads * 700, loadApp)
+      return
+    }
+    console.error(`FocusFlow: window still not up after ${MAX_RELOADS} reloads (${reason})`)
+    showingFallback = true
+    void wc.loadURL(fallbackPage(reason)).catch(() => {})
+    later(FALLBACK_RETRY_MS, loadApp)
+  }
+
+  const onReady = (event: Electron.IpcMainEvent): void => {
+    if (event.sender !== wc) return
+    reloads = 0
+    if (timer) clearTimeout(timer)
+    timer = null
+  }
+  ipcMain.on(IPC.ready, onReady)
+
+  wc.on('did-finish-load', () => {
+    if (showingFallback) return
+    later(READY_WAIT_MS, () => recover('the interface did not start'))
+  })
+  wc.on('did-fail-load', (_event, code, description, _url, isMainFrame) => {
+    // -3 is "aborted", which is what a deliberate reload looks like.
+    if (!isMainFrame || code === -3 || showingFallback) return
+    recover(`${description} (${code})`)
+  })
+  wc.on('render-process-gone', (_event, details) => {
+    if (details.reason !== 'clean-exit') recover(`the window process stopped: ${details.reason}`)
+  })
+  win.on('closed', () => {
+    if (timer) clearTimeout(timer)
+    ipcMain.removeListener(IPC.ready, onReady)
+  })
+
+  loadApp()
 }
 
 function onScreen(x: number, y: number, width: number, height: number): boolean {
@@ -215,6 +292,13 @@ export function toggleZen(controller: Controller): void {
   else createMiniWindow(controller)
   if (alive(mainWindow)) mainWindow.hide()
   setZen(true)
+}
+
+/** Send any message to every open window. */
+export function broadcastTo(channel: string, payload: unknown): void {
+  for (const win of [mainWindow, miniWindow]) {
+    if (alive(win)) win.webContents.send(channel, payload)
+  }
 }
 
 export function broadcast(data: AppData): void {

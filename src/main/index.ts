@@ -6,6 +6,7 @@ import { Controller } from './controller'
 import { registerIpc } from './ipc'
 import { notify, startNotifications } from './notify'
 import { JsonStore } from './store'
+import { startCloud } from './sync/cloud'
 import { createTray, destroyTray } from './tray'
 import {
   applyWindowSettings,
@@ -35,6 +36,10 @@ if (!app.requestSingleInstanceLock()) {
     nativeTheme.themeSource = controller.data.settings.theme
 
     registerIpc(controller)
+    // Optional cloud sync. Without Supabase settings this stays in local mode and does nothing.
+    const cloud = startCloud(controller)
+    // Background work must never take the app down with it.
+    process.on('unhandledRejection', (reason) => console.error('FocusFlow: unhandled rejection', reason))
 
     controller.subscribe((next, prev) => {
       broadcast(next)
@@ -70,6 +75,7 @@ if (!app.requestSingleInstanceLock()) {
       stopNotifications()
       // Credit the time worked so far and leave the timer paused for next launch.
       controller.dispatch({ type: 'focus/pause' })
+      cloud.dispose()
       controller.dispose()
       controller.flush()
       destroyTray()

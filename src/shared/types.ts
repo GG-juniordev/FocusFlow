@@ -140,6 +140,46 @@ export interface AppEnv {
   version: string
 }
 
+/** Where the data lives right now, for the status pill and the Account section. */
+export type CloudPhase =
+  | 'local' // not signed in: everything stays on this PC
+  | 'choose' // signed in, waiting for the user to decide what happens to local data
+  | 'syncing'
+  | 'synced'
+  | 'offline' // signed in but the cloud is unreachable; changes are queued
+  | 'error'
+
+export interface CloudState {
+  /** False when no Supabase project is configured: the app is local-only. */
+  configured: boolean
+  user: { id: string; email: string | null } | null
+  phase: CloudPhase
+  /** Local changes waiting to be uploaded. */
+  pending: number
+  lastSyncedAt: number | null
+  /** 'network', 'schema', or a message from the server. */
+  error: string | null
+  /** What is on this PC, shown when asking whether to transfer it. */
+  local: { tasks: number; events: number }
+}
+
+export type OAuthProvider = 'github' | 'google'
+
+export type CloudCommand =
+  | { type: 'sign-in'; email: string; password: string }
+  | { type: 'sign-up'; email: string; password: string }
+  | { type: 'magic-link'; email: string }
+  | { type: 'oauth'; provider: OAuthProvider }
+  | { type: 'choose'; mode: 'merge' | 'cloud' }
+  | { type: 'sign-out'; keepLocal: boolean }
+  | { type: 'sync-now' }
+
+export interface CloudResult {
+  ok: boolean
+  error?: string
+  info?: 'confirm-email' | 'link-sent' | 'browser-opened'
+}
+
 export interface Api {
   getState(): Promise<AppData>
   getEnv(): Promise<AppEnv>
@@ -148,6 +188,11 @@ export interface Api {
   windowCommand(command: WindowCommand): void
   /** Open a tool link in the default browser or app. */
   openExternal(url: string): void
+  getCloud(): Promise<CloudState>
+  onCloud(listener: (state: CloudState) => void): () => void
+  cloudCommand(command: CloudCommand): Promise<CloudResult>
+  /** Tell the main process that the UI has drawn something (the app, or an error screen). */
+  ready(): void
 }
 
 export const IPC = {
@@ -156,5 +201,9 @@ export const IPC = {
   dispatch: 'ff:dispatch',
   state: 'ff:state',
   window: 'ff:window',
-  openExternal: 'ff:open-external'
+  openExternal: 'ff:open-external',
+  getCloud: 'ff:get-cloud',
+  cloud: 'ff:cloud',
+  cloudCommand: 'ff:cloud-command',
+  ready: 'ff:ready'
 } as const

@@ -7,6 +7,7 @@ import { applyAction } from '@shared/model'
 import { MINUTE } from '@shared/time'
 import { Controller } from '../src/main/controller'
 import { JsonStore, normalize } from '../src/main/store'
+import { emptySyncMeta } from '../src/main/sync/core'
 
 let dir: string
 
@@ -18,7 +19,7 @@ afterEach(() => {
   fs.rmSync(dir, { recursive: true, force: true })
 })
 
-const meta = () => ({ window: {}, trayHintShown: false })
+const meta = () => ({ window: {}, trayHintShown: false, sync: emptySyncMeta() })
 
 describe('JsonStore', () => {
   it('starts fresh with seeded categories when nothing is on disk', () => {

@@ -15,6 +15,7 @@ import {
 } from '@shared/tools'
 import type { AppData, LibraryTool } from '@shared/types'
 import { JsonStore, normalize } from '../src/main/store'
+import { emptySyncMeta } from '../src/main/sync/core'
 
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
 const anki: LibraryTool = { id: 'anki', label: 'Anki', url: null, preset: null, icon: { type: 'emoji', value: '📚' } }
@@ -126,7 +127,7 @@ describe('persistence', () => {
       d = withTask(d, ['anki'])
       d = applyAction(d, { type: 'tool/remove', id: presetLibraryId('figma') }, 0)
       const store = new JsonStore(dir)
-      store.save(d, { window: {}, trayHintShown: false })
+      store.save(d, { window: {}, trayHintShown: false, sync: emptySyncMeta() })
       store.flush()
 
       const loaded = new JsonStore(dir).load().data
