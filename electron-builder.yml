@@ -1,0 +1,39 @@
+appId: com.focusflow.app
+productName: FocusFlow
+copyright: FocusFlow
+
+directories:
+  buildResources: build
+  output: dist
+
+# Everything the app needs is bundled into out/ by electron-vite.
+files:
+  - out/**
+  - resources/**
+  - package.json
+
+# Icons are read by Windows (tray, notifications), so they must be real files on disk.
+asarUnpack:
+  - resources/**
+
+npmRebuild: false
+publish: null
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  artifactName: ${productName}-Setup-${version}.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: FocusFlow
+  runAfterFinish: true
+  # Uninstalling keeps tasks and settings in %APPDATA%\FocusFlow.
+  deleteAppDataOnUninstall: false

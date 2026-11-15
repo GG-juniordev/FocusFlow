@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "savedAt": 1794764035617,
+  "data": {
+    "tasks": [
+      {
+        "id": "9853d051-dea9-449c-8814-04e59ee0629d",
+        "title": "Draft the quarterly report",
+        "notes": "",
+        "tools": [],
+        "estimateMin": 25,
+        "priority": "medium",
+        "categoryId": null,
+        "dueDate": null,
+        "status": "todo",
+        "order": 1,
+        "spentMs": 0,
+        "createdAt": 1794764011127,
+        "completedAt": null
+      },
+      {
+        "id": "2bf96da5-8510-4b2f-9113-fb65ed667bb8",
+        "title": "Review pull requests",
+        "notes": "",
+        "tools": [],
+        "estimateMin": 25,
+        "priority": "medium",
+        "categoryId": null,
+        "dueDate": "2026-11-12",
+        "status": "todo",
+        "order": 2,
+        "spentMs": 0,
+        "createdAt": 1794764011169,
+        "completedAt": null
+      },
+      {
+        "id": "bac476c4-0c14-474e-a02d-1aa44934335a",
+        "title": "Plan next sprint",
+        "notes": "",
+        "tools": [],
+        "estimateMin": 25,
+        "priority": "medium",
+        "categoryId": null,
+        "dueDate": null,
+        "status": "todo",
+        "order": 3,
+        "spentMs": 0,
+        "createdAt": 1794764011199,
+        "completedAt": null
+      },
+      {
+        "id": "787e0b31-9491-4d19-9aa6-0fee9aab873b",
+        "title": "Study Italian verbs",
+        "notes": "Chapter 4, irregular verbs",
+        "tools": [
+          {
+            "id": null,
+            "label": "Google",
+            "url": "https://www.google.com",
+            "preset": "google",
+            "icon": null
+          },
+          {
+            "id": null,
+            "label": "YouTube",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "preset": "youtube",
+            "icon": null
+          },
+          {
+            "id": "2c1bc837-25a1-42f8-8ded-4fb3098f39c7",
+            "label": "Anki",
+            "url": null,
+            "preset": null,
+            "icon": {
+              "type": "emoji",
+              "value": "🧠"
+            }
+          },
+          {
+            "id": "builtin-github",
+            "label": "GitHub",
+            "url": "https://github.com",
+            "preset": "github",
+            "icon": {
+              "type": "image",
+              "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABcUlEQVR4AeyUMU4DQQxFf4ZFSFyBI0BBTwsNDRdCFIgL0dBAS09BjpArRIqy2WTdTgrLGSvatf9KLmZn5q/9/bwFyR8akBwAkAASkNwBjkByAPgT5AikH4GH9/U+c3AE0o8ADUjmQF0u/wG1I9nWJCBbx+t6SUDtSOv6qgOe7zu8vly6hmiKdmt+9X13AsqoeHtT8HjX4ckpREs0RbsuoHU9ptsqcXy/LICuABdOIVqiefyl9jdjiu0ic1agAXPunkfuJMDDxTlrkIA5d88j9/AEaCbRAM2h6PskIHqHtfpIgOZQ9H0SEL3DWn0kQHPolP1hD/QDsHMK0RLNU3LR7rgTMIxFL1cDfv57fDuFaImmaGsFWffdDdj0wNdfj4/PrWuIpmhbC9TOuxugfXBq+zRgah05dz7hCLAaSAOsjkU7TwKiddRaDwn4fbteZA4SYJ2ZaOdJQLSOWushAVbHop0nAdE6aq2HBFgdm9r51nwOAAAA//+X6evDAAAABklEQVQDAPOSuJAANQlNAAAAAElFTkSuQmCC"
+            }
+          }
+        ],
+        "estimateMin": 60,
+        "priority": "high",
+        "categoryId": "cat-study",
+        "dueDate": "2026-11-20",
+        "status": "todo",
+        "order": 0,
+        "spentMs": 4504,
+        "createdAt": 1794764012350,
+        "completedAt": null
+      },
+      {
+        "id": "5a9ca710-2ede-4a88-8ace-d857dda6dd33",
+        "title": "Dentist appointment",
+        "notes": "",
+        "tools": [],
+        "estimateMin": 25,
+        "priority": "medium",
+        "categoryId": null,
+        "dueDate": "2026-11-15",
+        "status": "todo",
+        "order": 4,
+        "spentMs": 0,
+        "createdAt": 1794764021490,
+        "completedAt": null
+      }
+    ],
+    "events": [
+      {
+        "id": "6c703ff5-e22a-4b48-ab8a-64d158953a12",
+        "title": "Review pull requests",
+        "notes": "",
+        "start": "2026-11-12T17:15:00.000Z",
+        "end": "2026-11-12T18:40:00.000Z",
+        "categoryId": null,
+        "taskId": "2bf96da5-8510-4b2f-9113-fb65ed667bb8"
+      },
+      {
+        "id": "5cf974cd-24d2-403b-a0cd-c8e6e799987b",
+        "title": "Dentist appointment",
+        "notes": "",
+        "start": "2026-11-15T18:00:00.000Z",
+        "end": "2026-11-15T18:25:00.000Z",
+        "categoryId": null,
+        "taskId": "5a9ca710-2ede-4a88-8ace-d857dda6dd33"
+      }
+    ],
+    "categories": [
+      {
+        "id": "cat-work",
+        "name": "Work",
+        "color": "#4C8DF6"
+      },
+      {
+        "id": "cat-study",
+        "name": "Study",
+        "color": "#8B6CF0"
+      },
+      {
+        "id": "cat-personal",
+        "name": "Personal",
+        "color": "#23B5A6"
+      }
+    ],
+    "tools": [
+      {
+        "id": "builtin-vscode",
+        "label": "VS Code",
+        "url": "vscode://",
+        "preset": "vscode",
+        "icon": null
+      },
+      {
+        "id": "builtin-netbeans",
+        "label": "NetBeans",
+        "url": null,
+        "preset": "netbeans",
+        "icon": null
+      },
+      {
+        "id": "builtin-terminal",
+        "label": "Terminal",
+        "url": null,
+        "preset": "terminal",
+        "icon": null
+      },
+      {
+        "id": "builtin-youtube",
+        "label": "YouTube",
+        "url": "https://www.youtube.com",
+        "preset": "youtube",
+        "icon": null
+      },
+      {
+        "id": "builtin-docs",
+        "label": "Google Docs",
+        "url": "https://docs.google.com",
+        "preset": "docs",
+        "icon": null
+      },
+      {
+        "id": "builtin-github",
+        "label": "GitHub",
+        "url": "https://github.com",
+        "preset": "github",
+        "icon": {
+          "type": "image",
+          "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABcUlEQVR4AeyUMU4DQQxFf4ZFSFyBI0BBTwsNDRdCFIgL0dBAS09BjpArRIqy2WTdTgrLGSvatf9KLmZn5q/9/bwFyR8akBwAkAASkNwBjkByAPgT5AikH4GH9/U+c3AE0o8ADUjmQF0u/wG1I9nWJCBbx+t6SUDtSOv6qgOe7zu8vly6hmiKdmt+9X13AsqoeHtT8HjX4ckpREs0RbsuoHU9ptsqcXy/LICuABdOIVqiefyl9jdjiu0ic1agAXPunkfuJMDDxTlrkIA5d88j9/AEaCbRAM2h6PskIHqHtfpIgOZQ9H0SEL3DWn0kQHPolP1hD/QDsHMK0RLNU3LR7rgTMIxFL1cDfv57fDuFaImmaGsFWffdDdj0wNdfj4/PrWuIpmhbC9TOuxugfXBq+zRgah05dz7hCLAaSAOsjkU7TwKiddRaDwn4fbteZA4SYJ2ZaOdJQLSOWushAVbHop0nAdE6aq2HBFgdm9r51nwOAAAA//+X6evDAAAABklEQVQDAPOSuJAANQlNAAAAAElFTkSuQmCC"
+        }
+      },
+      {
+        "id": "2c1bc837-25a1-42f8-8ded-4fb3098f39c7",
+        "label": "Anki",
+        "url": null,
+        "preset": null,
+        "icon": {
+          "type": "emoji",
+          "value": "🧠"
+        }
+      },
+      {
+        "id": "36548683-7610-4884-b541-0fd5d57a0b92",
+        "label": "Khan Academy",
+        "url": null,
+        "preset": null,
+        "icon": {
+          "type": "emoji",
+          "value": "🎥"
+        }
+      }
+    ],
+    "settings": {
+      "launchAtStartup": true,
+      "startMinimized": false,
+      "alwaysOnTop": false,
+      "notificationSounds": true,
+      "theme": "light",
+      "accent": "#4C8DF6",
+      "bgColor": null,
+      "surfaceColor": null,
+      "language": "it",
+      "focusMin": 25,
+      "breakMin": 5
+    },
+    "focus": {
+      "taskId": "787e0b31-9491-4d19-9aa6-0fee9aab873b",
+      "phase": "focus",
+      "status": "paused",
+      "durationMs": 3600000,
+      "remainingMs": 3595496,
+      "endsAt": null,
+      "runStartedAt": null
+    }
+  },
+  "meta": {
+    "window": {
+      "main": {
+        "x": 370,
+        "y": 160,
+        "width": 1180,
+        "height": 760,
+        "maximized": false
+      }
+    },
+    "trayHintShown": true
+  }
+}
