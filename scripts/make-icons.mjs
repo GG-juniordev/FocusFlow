@@ -9,8 +9,11 @@ import sharp from 'sharp'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const svg = await readFile(resolve(root, 'resources/icon.svg'))
+// Tray and taskbar sizes get their own drawing: heavier strokes, no gradients,
+// and less padding, so the ring still reads at 16px.
+const smallSvg = await readFile(resolve(root, 'resources/icon-small.svg'))
 
-const render = (size) => sharp(svg, { density: 384 }).resize(size, size)
+const render = (size) => sharp(size <= 24 ? smallSvg : svg, { density: 384 }).resize(size, size)
 
 /** Classic BMP-style icon entry (BGRA + empty AND mask): the most widely compatible form. */
 async function bmpEntry(size) {

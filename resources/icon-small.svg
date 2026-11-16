@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Used for the 16, 20 and 24px icon sizes (tray, taskbar, title bar):
+       same ring as icon.svg, drawn larger and heavier with flat colours. -->
+  <rect width="256" height="256" rx="60" fill="#1b2133"/>
+  <circle cx="128" cy="128" r="86" fill="none" stroke="#4a5674" stroke-width="40"/>
+  <path d="M128 42 A86 86 0 1 1 44.93 150.26" fill="none" stroke="#f6a93b" stroke-width="40" stroke-linecap="round"/>
+  <circle cx="128" cy="128" r="30" fill="#f6a93b"/>
+</svg>

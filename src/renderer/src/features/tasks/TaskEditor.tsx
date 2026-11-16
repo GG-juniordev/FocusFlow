@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import type { Priority, Task, ToolRef } from '@shared/types'
+import type { Priority, Subtask, Task, ToolRef } from '@shared/types'
+import { SubtasksEditor } from '@/components/subtasks'
 import { DurationPicker } from '@/components/DurationPicker'
 import { ToolsPicker } from '@/components/tools'
 import { Button, Chip, Field, Group, Modal, Segmented, inputBase, inputClass } from '@/components/ui'
@@ -19,13 +20,14 @@ export function TaskEditor({ task, onClose }: { task?: Task; onClose(): void }) 
   const [categoryId, setCategoryId] = useState<string | null>(task?.categoryId ?? null)
   const [dueDate, setDueDate] = useState(task?.dueDate ?? '')
   const [tools, setTools] = useState<ToolRef[]>(task?.tools ?? [])
+  const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks ?? [])
 
   const save = (e: FormEvent): void => {
     e.preventDefault()
     if (!title.trim()) return
     dispatch({
       type: 'task/upsert',
-      task: { id: task?.id ?? newId(), title, notes, tools, estimateMin, priority, categoryId, dueDate: dueDate || null }
+      task: { id: task?.id ?? newId(), title, notes, tools, subtasks, estimateMin, priority, categoryId, dueDate: dueDate || null }
     })
     onClose()
   }
@@ -76,6 +78,9 @@ export function TaskEditor({ task, onClose }: { task?: Task; onClose(): void }) 
             className={`${inputClass} h-auto resize-none py-2`}
           />
         </Field>
+        <Group label={t('field.subtasks')}>
+          <SubtasksEditor value={subtasks} onChange={setSubtasks} />
+        </Group>
         <Group label={t('field.tools')}>
           <ToolsPicker value={tools} onChange={setTools} />
         </Group>

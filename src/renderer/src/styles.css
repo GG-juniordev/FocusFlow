@@ -292,3 +292,40 @@
 .ff-ev[data-done='true'] .ff-ev-title {
   text-decoration: line-through;
 }
+
+/* A task with a day but no time: outlined rather than filled, with a tick circle. */
+.ff-ev.ff-ev-task {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 20px;
+  padding: 2px 6px;
+  border: 1px dashed color-mix(in oklab, var(--c) 65%, var(--line));
+  border-left: 3px solid var(--c);
+  background: color-mix(in oklab, var(--c) 9%, var(--surface));
+}
+
+.ff-ev-mark {
+  flex-shrink: 0;
+  color: color-mix(in oklab, var(--c) 70%, var(--ink));
+}
+
+.ff-cal .fc .fc-timegrid-axis-cushion,
+.ff-cal .fc .fc-timegrid-axis-frame {
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.ff-cal .fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+  margin-bottom: 2px;
+}
+
+/* Keep the calendar's own popovers and sticky headers under app dialogs (z-50) and toasts. */
+.ff-cal .fc .fc-popover {
+  z-index: 30;
+}
+
+.ff-ev-title,
+.ff-ev-time {
+  min-width: 0;
+}

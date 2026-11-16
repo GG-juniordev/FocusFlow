@@ -9,13 +9,23 @@ const shared = resolve('src/shared')
 const CSP =
   "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
 
-/** Lock the built app down to its own files. Left out in dev, where hot reload needs inline scripts. */
-const contentSecurityPolicy = (): Plugin => ({
-  name: 'focusflow-csp',
-  apply: 'build',
-  transformIndexHtml: (html) =>
-    html.replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${CSP}" />`)
-})
+// In development Vite injects inline scripts and talks to its server over a
+// websocket for hot reload, so those two things are allowed there and only there.
+const DEV_CSP =
+  "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' ws:"
+
+/** Lock the app down to its own files: strictly in the built app, with hot-reload allowances in dev. */
+const contentSecurityPolicy = (): Plugin => {
+  let dev = false
+  return {
+    name: 'focusflow-csp',
+    configResolved: (config) => {
+      dev = config.command === 'serve'
+    },
+    transformIndexHtml: (html) =>
+      html.replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${dev ? DEV_CSP : CSP}" />`)
+  }
+}
 
 export default defineConfig(({ mode }) => {
   // Optional Supabase settings from .env. Both the VITE_ names and the plain

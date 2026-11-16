@@ -15,7 +15,7 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
   const color = PRIORITY_COLOR[priority]
   return (
     <span
-      className="inline-flex h-[22px] items-center gap-1.5 rounded-full px-2 text-xs font-semibold"
+      className="inline-flex h-[22px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-xs font-semibold"
       style={{
         color: `color-mix(in oklab, ${color} 68%, var(--ink))`,
         background: `color-mix(in oklab, ${color} 17%, transparent)`
@@ -29,7 +29,7 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
 
 export function CategoryChip({ category }: { category: Category }) {
   return (
-    <span className="inline-flex max-w-36 items-center gap-1.5 text-xs font-medium text-muted">
+    <span title={category.name} className="inline-flex min-w-0 max-w-32 items-center gap-1.5 text-xs font-medium text-muted">
       <span className="size-2 shrink-0 rounded-full" style={{ background: category.color }} />
       <span className="truncate">{category.name}</span>
     </span>
@@ -48,13 +48,13 @@ export function TaskMeta({ task, className }: { task: Task; className?: string }
     <div className={cn('flex items-center gap-3', className)}>
       {category && <CategoryChip category={category} />}
       <PriorityBadge priority={task.priority} />
-      <span className="inline-flex items-center gap-1 text-xs tabular-nums text-muted">
+      <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs tabular-nums text-muted">
         <Clock size={13} />
         {formatDuration(task.estimateMin)}
       </span>
       {due && (
         <span
-          className={cn('inline-flex items-center gap-1 text-xs', late ? 'font-semibold text-danger' : 'text-muted')}
+          className={cn('inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs', late ? 'font-semibold text-danger' : 'text-muted')}
           title={late ? t('tasks.overdue') : undefined}
         >
           <CalendarDays size={13} />

@@ -1,6 +1,6 @@
 import http from 'node:http'
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
-import { app, ipcMain, powerMonitor, shell } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { IPC, type CloudCommand, type CloudResult } from '@shared/types'
 import type { Controller } from '../controller'
 import { broadcastTo, showMain } from '../windows'
@@ -40,19 +40,32 @@ export function startCloud(controller: Controller): Cloud {
   }
   const engine = new SyncEngine(controller, { configured: client !== null })
 
-  const applySession = (session: Session | null): void => {
-    if (!client || !session?.user) engine.setUser(null, null)
-    else engine.setUser({ id: session.user.id, email: session.user.email ?? null }, new SupabaseRemote(client, session.user.id))
+  // Set while the user is in the middle of signing in. Only then does a new
+  // session trigger a first sync; a session restored at startup never does.
+  let signingInUntil = 0
+
+  const applySession = (session: Session | null, event?: string): void => {
+    if (!client || !session?.user) {
+      engine.setUser(null, null)
+      return
+    }
+    const interactive = event === 'SIGNED_IN' && Date.now() < signingInUntil
+    if (interactive) signingInUntil = 0
+    engine.setUser(
+      { id: session.user.id, email: session.user.email ?? null },
+      new SupabaseRemote(client, session.user.id),
+      interactive
+    )
   }
 
   // Fires with the stored session at startup, and on every sign-in, refresh and sign-out.
   // Deferred: the auth library must not be called back into from inside its own callback.
   let subscription: ReturnType<SupabaseClient['auth']['onAuthStateChange']> | undefined
   try {
-    subscription = client?.auth.onAuthStateChange((_event, session) => {
+    subscription = client?.auth.onAuthStateChange((event, session) => {
       setTimeout(() => {
         try {
-          applySession(session)
+          applySession(session, event)
         } catch (error) {
           console.error('FocusFlow: could not apply the sign-in session.', error)
         }
@@ -124,6 +137,8 @@ export function startCloud(controller: Controller): Cloud {
 
   const run = async (command: CloudCommand): Promise<CloudResult> => {
     if (!client) return { ok: false, error: 'not-configured' }
+    if (command.type === 'sign-in' || command.type === 'sign-up') signingInUntil = Date.now() + 60_000
+    if (command.type === 'magic-link' || command.type === 'oauth') signingInUntil = Date.now() + CALLBACK_WINDOW_MS
     switch (command.type) {
       case 'sign-in': {
         const { error } = await client.auth.signInWithPassword({ email: command.email, password: command.password })
@@ -167,9 +182,14 @@ export function startCloud(controller: Controller): Cloud {
         await client.auth.signOut({ scope: 'local' }).catch(() => {})
         return { ok: true }
       }
-      case 'sync-now':
+      case 'sync-now': {
         await engine.syncNow()
+        // Report how it went, so the UI can confirm or explain.
+        const { phase, error } = engine.state
+        if (phase === 'offline') return { ok: false, error: 'network' }
+        if (phase === 'error') return { ok: false, error: error ?? 'error' }
         return { ok: true }
+      }
     }
   }
 
@@ -184,15 +204,11 @@ export function startCloud(controller: Controller): Cloud {
   })
 
   const stopBroadcast = engine.onState((state) => broadcastTo(IPC.cloud, state))
-  // Catch up as soon as the PC wakes; it has probably been offline.
-  const onResume = (): void => void engine.syncNow()
-  powerMonitor.on('resume', onResume)
 
   return {
     engine,
     dispose: () => {
       stopBroadcast()
-      powerMonitor.off('resume', onResume)
       subscription?.data.subscription.unsubscribe()
       stopServer()
       engine.dispose()

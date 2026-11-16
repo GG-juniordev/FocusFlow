@@ -1,4 +1,5 @@
 import { isHex } from '@shared/palette'
+import { sanitizeSubtasks } from '@shared/subtasks'
 import { sanitizeIcon, sanitizeTools, presetById, isSafeUrl } from '@shared/tools'
 import type { CalendarEvent, Category, LibraryTool, Task } from '@shared/types'
 import { SETTINGS_ID, type RemoteRow, type SyncRecord, type SyncedSettings, type Table } from './core'
@@ -52,6 +53,7 @@ export function toRow(table: Table, userId: string, id: string, updatedAt: strin
         category_id: t.categoryId,
         due_date: t.dueDate,
         tools: t.tools,
+        subtasks: t.subtasks,
         is_completed: t.status === 'done',
         position: t.order,
         spent_ms: Math.round(t.spentMs),
@@ -116,6 +118,7 @@ function recordFrom(table: Table, id: string, row: Row): SyncRecord | null {
         title,
         notes: str(row.notes),
         tools: sanitizeTools(row.tools),
+        subtasks: sanitizeSubtasks(row.subtasks),
         estimateMin: Math.max(1, Math.round(num(row.estimated_minutes, 25))),
         priority: oneOf(row.priority, ['high', 'medium', 'low'] as const, 'medium'),
         categoryId: strOrNull(row.category_id),

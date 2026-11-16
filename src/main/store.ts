@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { DEFAULT_SETTINGS, defaultData, idleFocus } from '@shared/defaults'
 import { isHex } from '@shared/palette'
+import { sanitizeSubtasks } from '@shared/subtasks'
 import { randomUUID } from 'node:crypto'
 import { emptySyncMeta, normalizeSyncMeta, type SyncMeta } from './sync/core'
 import { defaultToolLibrary, sameTool, sanitizeLibrary, sanitizeTools } from '@shared/tools'
@@ -182,6 +183,7 @@ export function normalize(raw: unknown, now: number): { data: AppData; meta: Met
       title: (t.title as string).trim(),
       notes: str(t.notes, ''),
       tools: linkTools(sanitizeTools(t.tools), library),
+      subtasks: sanitizeSubtasks(t.subtasks),
       estimateMin: Math.max(1, Math.round(num(t.estimateMin, settings.focusMin))),
       priority: oneOf(t.priority, ['high', 'medium', 'low'] as const, 'medium'),
       categoryId: category(t.categoryId),

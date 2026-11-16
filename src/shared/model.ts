@@ -1,5 +1,6 @@
 import { idleFocus } from './defaults'
 import { isHex } from './palette'
+import { sanitizeSubtasks } from './subtasks'
 import { defaultToolLibrary, sanitizeLibrary, sanitizeTools, snapshotTool } from './tools'
 import { MINUTE, eventMinutes, toDateKey } from './time'
 import type { Action, AppData, CalendarEvent, FocusState, LibraryTool, Settings, Task, TaskDraft } from './types'
@@ -18,6 +19,8 @@ export function applyAction(data: AppData, action: Action, now: number): AppData
       return reorderTasks(data, action.ids)
     case 'task/setStatus':
       return setTaskStatus(data, action.id, action.status, now)
+    case 'task/toggleSubtask':
+      return toggleSubtask(data, action.taskId, action.subtaskId)
     case 'event/upsert':
       return upsertEvent(data, action.event)
     case 'event/remove':
@@ -75,6 +78,7 @@ function upsertTask(data: AppData, draft: TaskDraft, now: number): AppData {
     const merged: Task = { ...existing, ...draft, id: existing.id }
     merged.title = (merged.title ?? '').trim() || existing.title
     merged.tools = draft.tools === undefined ? existing.tools : taskTools(data, draft.tools)
+    merged.subtasks = draft.subtasks === undefined ? existing.subtasks : sanitizeSubtasks(draft.subtasks)
     merged.estimateMin = clampMinutes(merged.estimateMin, existing.estimateMin)
     let focus = data.focus
     // Keep an untouched timer in step with a changed estimate.
@@ -98,6 +102,7 @@ function upsertTask(data: AppData, draft: TaskDraft, now: number): AppData {
     title,
     notes: draft.notes ?? '',
     tools: taskTools(data, draft.tools),
+    subtasks: sanitizeSubtasks(draft.subtasks),
     estimateMin: clampMinutes(draft.estimateMin, data.settings.focusMin),
     priority: draft.priority ?? 'medium',
     categoryId: draft.categoryId ?? null,
@@ -119,6 +124,14 @@ function removeTask(data: AppData, id: string, now: number): AppData {
     tasks: next.tasks.filter((t) => t.id !== id),
     events: next.events.map((e) => (e.taskId === id ? { ...e, taskId: null } : e))
   }
+}
+
+/** Tick or untick one checklist step. */
+function toggleSubtask(data: AppData, taskId: string, subtaskId: string): AppData {
+  const task = data.tasks.find((t) => t.id === taskId)
+  if (!task || !task.subtasks.some((s) => s.id === subtaskId)) return data
+  const subtasks = task.subtasks.map((s) => (s.id === subtaskId ? { ...s, isCompleted: !s.isCompleted } : s))
+  return { ...data, tasks: data.tasks.map((t) => (t.id === taskId ? { ...t, subtasks } : t)) }
 }
 
 /** `ids` is the new order of some or all tasks; unlisted tasks keep their relative order after them. */

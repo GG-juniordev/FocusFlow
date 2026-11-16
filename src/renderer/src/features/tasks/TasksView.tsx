@@ -21,9 +21,10 @@ import { Check, ChevronDown, GripVertical, Pencil, Plus, Trash2 } from 'lucide-r
 import { sortedTasks } from '@shared/model'
 import type { Task } from '@shared/types'
 import { TaskMeta } from '@/components/badges'
+import { SubtaskChecklist, SubtaskProgress, SubtaskToggle } from '@/components/subtasks'
 import { ToolPills } from '@/components/tools'
 import { Button, Chip, IconButton, cn } from '@/components/ui'
-import { useData, useT } from '@/lib/hooks'
+import { useData, useT, useWide } from '@/lib/hooks'
 import { newId, useApp } from '@/state/useApp'
 import { TaskEditor } from './TaskEditor'
 
@@ -78,7 +79,7 @@ export function TasksView() {
       <header className="flex items-end justify-between">
         <div className="flex items-baseline gap-3">
           <h1 className="font-display text-[28px] font-semibold tracking-[-0.01em]">{t('tasks.title')}</h1>
-          <span className="text-sm text-muted">{t('tasks.count', { n: todoAll.length })}</span>
+          <span className="whitespace-nowrap text-sm text-muted">{t('tasks.count', { n: todoAll.length })}</span>
         </div>
         <Button variant="primary" onClick={() => setEditing({})}>
           <Plus size={17} />
@@ -194,11 +195,15 @@ function TaskRow({ task, onEdit }: { task: Task; onEdit(): void }) {
   const t = useT()
   const dispatch = useApp((s) => s.dispatch)
   const setView = useApp((s) => s.setView)
+  const wide = useWide()
   const [completing, setCompleting] = useState(false)
+  const [open, setOpen] = useState(false)
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id
   })
   const inFocus = data.focus.taskId === task.id && data.focus.phase === 'focus'
+  const hasSteps = task.subtasks.length > 0
+  const hasDetails = hasSteps || task.tools.length > 0 || !wide
 
   useEffect(() => {
     if (!completing) return
@@ -207,119 +212,142 @@ function TaskRow({ task, onEdit }: { task: Task; onEdit(): void }) {
   }, [completing, dispatch, task.id])
 
   return (
-    // The outer item animates its height; the inner row carries the drag transform.
+    // The outer item animates its height; the inner block carries the drag transform.
     // Clipping is lifted while dragging so the lifted row is not cut off.
     <motion.li {...rowMotion} style={{ overflow: isDragging ? 'visible' : 'hidden' }} className="relative">
       <div
         ref={setNodeRef}
         style={{ transform: CSS.Translate.toString(transform), transition }}
         className={cn(
-          'group relative flex min-h-[56px] items-center gap-2 border-b border-line py-2 pr-1 transition-[background-color,box-shadow] duration-150',
+          'group relative border-b border-line transition-[background-color,box-shadow] duration-150',
           isDragging && 'z-10 rounded-lg border-transparent bg-raised shadow-lg'
         )}
       >
-        <button
-          ref={setActivatorNodeRef}
-          type="button"
-          aria-label={t('tasks.reorder')}
-          title={t('tasks.reorder')}
-          className="grid h-8 w-5 shrink-0 cursor-grab place-items-center rounded text-faint opacity-0 transition-opacity duration-150 hover:text-ink focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical size={16} />
-        </button>
-
-        <button
-          type="button"
-          aria-label={t('tasks.markDone')}
-          title={t('tasks.markDone')}
-          disabled={completing}
-          onClick={() => setCompleting(true)}
-          className={cn(
-            'relative grid size-[22px] shrink-0 place-items-center rounded-full border-[1.5px] transition-[border-color,color,transform] duration-150 active:scale-90',
-            completing
-              ? 'border-accent text-accent-ink'
-              : 'border-faint text-transparent hover:border-accent hover:text-accent-text'
-          )}
-        >
-          <motion.span
-            className="absolute inset-[-1.5px] rounded-full bg-accent"
-            initial={false}
-            animate={{ scale: completing ? 1 : 0, opacity: completing ? 1 : 0 }}
-            transition={{ type: 'spring', stiffness: 600, damping: 28 }}
-          />
-          <motion.span
-            className="relative"
-            initial={false}
-            animate={completing ? { scale: [0.4, 1.25, 1] } : { scale: 1 }}
-            transition={{ duration: 0.3, delay: completing ? 0.05 : 0 }}
+        <div className="flex min-h-[56px] items-center gap-2 py-2 pr-1">
+          <button
+            ref={setActivatorNodeRef}
+            type="button"
+            aria-label={t('tasks.reorder')}
+            title={t('tasks.reorder')}
+            className="grid h-8 w-5 shrink-0 cursor-grab place-items-center rounded text-faint opacity-0 transition-opacity duration-150 hover:text-ink focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
           >
-            <Check size={13} strokeWidth={3} />
-          </motion.span>
-        </button>
+            <GripVertical size={16} />
+          </button>
 
-        <button type="button" onClick={onEdit} className="ml-1.5 min-w-0 flex-1 rounded py-0.5 text-left">
-          <span className="relative inline-block max-w-full truncate align-top text-[15px] font-medium">
-            <span className={cn('transition-colors duration-300', completing && 'text-muted')}>{task.title}</span>
-            {/* Strike-through drawn left to right as the task is ticked off. */}
+          <button
+            type="button"
+            aria-label={t('tasks.markDone')}
+            title={t('tasks.markDone')}
+            disabled={completing}
+            onClick={() => setCompleting(true)}
+            className={cn(
+              'relative grid size-[22px] shrink-0 place-items-center rounded-full border-[1.5px] transition-[border-color,color,transform] duration-150 active:scale-90',
+              completing
+                ? 'border-accent text-accent-ink'
+                : 'border-faint text-transparent hover:border-accent hover:text-accent-text'
+            )}
+          >
             <motion.span
-              aria-hidden="true"
-              className="absolute left-0 top-1/2 h-[1.5px] w-full origin-left bg-muted"
+              className="absolute inset-[-1.5px] rounded-full bg-accent"
               initial={false}
-              animate={{ scaleX: completing ? 1 : 0 }}
-              transition={{ duration: 0.28, ease: EASE, delay: 0.08 }}
+              animate={{ scale: completing ? 1 : 0, opacity: completing ? 1 : 0 }}
+              transition={{ type: 'spring', stiffness: 600, damping: 28 }}
             />
-          </span>
-          {(task.tools.length > 0 || task.notes) && (
-            <span className="mt-1 flex min-w-0 items-center gap-2">
-              <ToolPills tools={task.tools} />
-              {task.notes && <span className="min-w-0 truncate text-[13px] text-muted">{task.notes}</span>}
-            </span>
-          )}
-        </button>
-
-        <TaskMeta task={task} className="shrink-0" />
-
-        <div className="ml-2 flex shrink-0 items-center gap-0.5">
-          {inFocus ? (
-            <button
-              type="button"
-              onClick={() => setView('focus')}
-              className="inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-semibold text-accent-text transition-colors duration-150 hover:bg-accent-soft"
+            <motion.span
+              className="relative"
+              initial={false}
+              animate={completing ? { scale: [0.4, 1.25, 1] } : { scale: 1 }}
+              transition={{ duration: 0.3, delay: completing ? 0.05 : 0 }}
             >
-              <span className="relative flex size-1.5">
-                {data.focus.status === 'running' && (
-                  <span className="absolute inset-0 animate-ping rounded-full bg-accent opacity-60" />
-                )}
-                <span className="relative size-1.5 rounded-full bg-accent" />
+              <Check size={13} strokeWidth={3} />
+            </motion.span>
+          </button>
+
+          {/* Title opens the editor. Details sit beside it, not inside it: links and
+              the steps switch are buttons of their own. */}
+          <div className="ml-1.5 min-w-0 flex-1">
+            <button type="button" onClick={onEdit} title={task.title} className="block max-w-full rounded py-0.5 text-left">
+              <span className="relative block max-w-full truncate text-[15px] font-medium">
+                <span className={cn('transition-colors duration-300', completing && 'text-muted')}>{task.title}</span>
+                {/* Strike-through drawn left to right as the task is ticked off. */}
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 h-[1.5px] w-full origin-left bg-muted"
+                  initial={false}
+                  animate={{ scaleX: completing ? 1 : 0 }}
+                  transition={{ duration: 0.28, ease: EASE, delay: 0.08 }}
+                />
               </span>
-              {t('focus.inFocus')}
             </button>
-          ) : (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-ink"
-              onClick={() => {
-                dispatch({ type: 'focus/set', taskId: task.id })
-                setView('focus')
-              }}
+            {hasDetails && (
+              <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                {!wide && <TaskMeta task={task} className="flex-wrap gap-y-1" />}
+                <SubtaskToggle subtasks={task.subtasks} open={open} onToggle={() => setOpen((v) => !v)} />
+                <ToolPills tools={task.tools} max={wide ? 3 : 2} />
+              </div>
+            )}
+            {task.notes && <p className="mt-1 truncate text-[13px] text-muted">{task.notes}</p>}
+          </div>
+
+          {wide && <TaskMeta task={task} className="shrink-0" />}
+
+          <div className="ml-2 flex shrink-0 items-center gap-0.5">
+            {inFocus ? (
+              <button
+                type="button"
+                onClick={() => setView('focus')}
+                className="inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-[13px] font-semibold text-accent-text transition-colors duration-150 hover:bg-accent-soft"
+              >
+                <span className="relative flex size-1.5">
+                  {data.focus.status === 'running' && (
+                    <span className="absolute inset-0 animate-ping rounded-full bg-accent opacity-60" />
+                  )}
+                  <span className="relative size-1.5 rounded-full bg-accent" />
+                </span>
+                {t('focus.inFocus')}
+              </button>
+            ) : (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-ink"
+                onClick={() => {
+                  dispatch({ type: 'focus/set', taskId: task.id })
+                  setView('focus')
+                }}
+              >
+                {t('focus.now')}
+              </Button>
+            )}
+            <IconButton label={t('tasks.edit')} onClick={onEdit}>
+              <Pencil size={15} />
+            </IconButton>
+            <IconButton
+              label={t('tasks.delete')}
+              tone="danger"
+              onClick={() => dispatch({ type: 'task/remove', id: task.id })}
             >
-              {t('focus.now')}
-            </Button>
-          )}
-          <IconButton label={t('tasks.edit')} onClick={onEdit}>
-            <Pencil size={15} />
-          </IconButton>
-          <IconButton
-            label={t('tasks.delete')}
-            tone="danger"
-            onClick={() => dispatch({ type: 'task/remove', id: task.id })}
-          >
-            <Trash2 size={15} />
-          </IconButton>
+              <Trash2 size={15} />
+            </IconButton>
+          </div>
         </div>
+
+        <AnimatePresence initial={false}>
+          {open && hasSteps && (
+            <motion.div
+              key="steps"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: EASE }}
+              className="overflow-hidden"
+            >
+              <SubtaskChecklist task={task} className="pb-2.5 pl-[58px] pr-2" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.li>
   )
@@ -340,7 +368,10 @@ function DoneRow({ task }: { task: Task }) {
         >
           <Check size={13} strokeWidth={3} />
         </button>
-        <span className="ml-1.5 min-w-0 flex-1 truncate text-[15px] text-muted line-through">{task.title}</span>
+        <span title={task.title} className="ml-1.5 min-w-0 flex-1 truncate text-[15px] text-muted line-through">
+          {task.title}
+        </span>
+        <SubtaskProgress subtasks={task.subtasks} className="mr-1" />
         <IconButton
           label={t('tasks.delete')}
           tone="danger"

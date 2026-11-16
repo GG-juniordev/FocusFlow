@@ -4,17 +4,12 @@ import { GitBranch, Globe, LogOut, Mail, RefreshCw } from 'lucide-react'
 import type { MessageKey, Translate } from '@shared/i18n'
 import type { CloudCommand, CloudResult, CloudState } from '@shared/types'
 import { Button, Field, cn, inputClass } from '@/components/ui'
-import { localeOf, useData, useT } from '@/lib/hooks'
+import { useData, useT } from '@/lib/hooks'
 import { useApp } from '@/state/useApp'
 import { SignOutModal } from './CloudModals'
+import { explainSyncError, formatSyncTime, useSyncNow } from './sync'
 
-/** Known error codes get a translated explanation; anything else is the server's own message. */
-function explain(error: string | null | undefined, t: Translate): string | null {
-  if (!error) return null
-  if (error === 'network') return t('account.err.network')
-  if (error === 'schema') return t('account.err.schema')
-  return error
-}
+const explain = (error: string | null | undefined, t: Translate): string | null => (error ? explainSyncError(error, t) : null)
 
 const INFO: Record<NonNullable<CloudResult['info']>, MessageKey> = {
   'confirm-email': 'account.confirmEmail',
@@ -127,7 +122,7 @@ function SignedIn({ cloud }: { cloud: CloudState }) {
   const t = useT()
   const language = useData().settings.language
   const [signingOut, setSigningOut] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const { syncing: busy, syncNow } = useSyncNow()
 
   const status =
     cloud.phase === 'error'
@@ -138,12 +133,12 @@ function SignedIn({ cloud }: { cloud: CloudState }) {
           ? t('account.status.choose')
           : cloud.phase === 'syncing'
             ? t('account.status.syncing')
-            : t('account.status.synced')
+            : cloud.phase === 'pending'
+              ? t('account.status.pending')
+              : t('account.status.synced')
 
   const lastSync = cloud.lastSyncedAt
-    ? t('account.lastSync', {
-        time: new Date(cloud.lastSyncedAt).toLocaleTimeString(localeOf(language), { hour: '2-digit', minute: '2-digit' })
-      })
+    ? t('account.lastSync', { time: formatSyncTime(cloud.lastSyncedAt, language) })
     : t('account.never')
 
   return (
@@ -155,22 +150,27 @@ function SignedIn({ cloud }: { cloud: CloudState }) {
         className={cn('mt-1 text-[13px]', cloud.phase === 'error' ? 'text-danger' : 'text-muted')}
       >
         {status}
-        {cloud.pending > 0 && cloud.phase !== 'choose' && ` ${t('account.pending', { n: cloud.pending })}.`}
       </p>
-      <p className="mt-0.5 text-xs text-faint">{lastSync}</p>
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+        {cloud.pending > 0 && cloud.phase !== 'choose' && (
+          <span data-testid="unsynced-note" className="rounded-full bg-accent px-2 py-0.5 font-semibold text-accent-ink">
+            {t('sync.unsynced')} · {cloud.pending}
+          </span>
+        )}
+        <span className="text-faint">{lastSync}</span>
+      </div>
+      <p className="mt-2 max-w-[60ch] text-xs text-faint">{t('account.manual')}</p>
       <div className="mt-3 flex gap-2">
         <Button
-          size="sm"
-          disabled={busy || cloud.phase === 'choose'}
-          onClick={() => {
-            setBusy(true)
-            void window.api.cloudCommand({ type: 'sync-now' }).finally(() => setBusy(false))
-          }}
+          size="md"
+          variant={cloud.pending > 0 ? 'primary' : 'soft'}
+          disabled={busy || cloud.phase === 'choose' || cloud.phase === 'syncing'}
+          onClick={() => void syncNow()}
         >
           <RefreshCw size={14} className={busy || cloud.phase === 'syncing' ? 'animate-spin' : undefined} />
           {t('account.syncNow')}
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => setSigningOut(true)}>
+        <Button size="md" variant="ghost" onClick={() => setSigningOut(true)}>
           <LogOut size={14} />
           {t('account.signOut')}
         </Button>

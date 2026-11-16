@@ -72,7 +72,7 @@ function device(dir?: string) {
   const folder = dir ?? fs.mkdtempSync(path.join(os.tmpdir(), 'focusflow-sync-'))
   if (!dir) dirs.push(folder)
   const controller = new Controller(new JsonStore(folder))
-  const engine = new SyncEngine(controller, { configured: true, manual: true })
+  const engine = new SyncEngine(controller, { configured: true })
   const add = (id: string, title: string): void => controller.dispatch({ type: 'task/upsert', task: { id, title } })
   const titles = (): string[] => controller.data.tasks.map((t) => t.title).sort()
   return { folder, controller, engine, add, titles }
@@ -211,6 +211,45 @@ describe('staying in sync', () => {
     await b.engine.syncNow()
     return { cloud, a, b }
   }
+
+  it('nothing is sent or fetched until a sync is asked for', async () => {
+    const { cloud, a, b } = await pair()
+    const before = cloud.rows.size
+    a.add('t1', 'Edited locally')
+    a.controller.dispatch({ type: 'task/upsert', task: { id: 't1', notes: 'more edits' } })
+    await new Promise((r) => setTimeout(r, 120))
+    expect(cloud.rows.size).toBe(before)
+    expect(a.engine.state).toMatchObject({ phase: 'pending', pending: 1 })
+    expect(b.titles()).toEqual([])
+
+    await a.engine.syncNow()
+    expect(a.engine.state).toMatchObject({ phase: 'synced', pending: 0 })
+    expect(a.engine.state.lastSyncedAt).toBeGreaterThan(0)
+    // The other device also only changes when it syncs.
+    await new Promise((r) => setTimeout(r, 60))
+    expect(b.titles()).toEqual([])
+    await b.engine.syncNow()
+    expect(b.titles()).toEqual(['Edited locally'])
+  })
+
+  it('a session restored at startup does not sync by itself; a fresh sign-in does', async () => {
+    const { cloud, a } = await pair()
+    a.add('t1', 'Waiting')
+    a.controller.flush()
+    a.engine.dispose()
+    const before = cloud.rows.size
+
+    const restarted = device(a.folder)
+    restarted.engine.setUser(ALICE, cloud.for('alice')) // restored session
+    await new Promise((r) => setTimeout(r, 60))
+    expect(cloud.rows.size).toBe(before)
+    expect(restarted.engine.state).toMatchObject({ phase: 'pending', pending: 1 })
+
+    restarted.engine.setUser(null, null)
+    restarted.engine.setUser(ALICE, cloud.for('alice'), true) // the user just signed in
+    await new Promise((r) => setTimeout(r, 60))
+    expect(restarted.engine.state).toMatchObject({ phase: 'synced', pending: 0 })
+  })
 
   it('edits, completions and deletions travel between devices', async () => {
     const { a, b } = await pair()
@@ -388,6 +427,7 @@ describe('row mapping', () => {
       title: 'Study',
       notes: 'ch. 4',
       tools: [{ id: null, label: 'Google', url: 'https://www.google.com', preset: 'google', icon: null }],
+      subtasks: [{ id: 's1', title: 'Read', isCompleted: true, position: 0 }],
       estimateMin: 45,
       priority: 'high',
       categoryId: 'cat-study',

@@ -97,7 +97,8 @@ export function ToolPill({ tool: ref, size = 'sm' }: { tool: ToolRef; size?: 'sm
   const tool = useResolvedTool(ref)
   const large = size === 'lg'
   const base = cn(
-    'inline-flex max-w-[220px] items-center rounded-full border border-line bg-surface font-medium',
+    'inline-flex min-w-0 items-center rounded-full border border-line bg-surface font-medium',
+    large ? 'max-w-[240px]' : 'max-w-[150px]',
     large ? 'h-8 gap-2 px-3 text-[13px]' : 'h-[22px] gap-1.5 px-2 text-xs text-muted'
   )
   const body = (
@@ -136,7 +137,7 @@ export function ToolPills({ tools, max = 3 }: { tools: ToolRef[]; max?: number }
   const shown = tools.slice(0, max)
   const rest = tools.slice(max)
   return (
-    <span className="flex min-w-0 items-center gap-1">
+    <span className="flex min-w-0 max-w-full items-center gap-1">
       {shown.map((tool) => (
         <ToolPill key={toolKey(tool)} tool={tool} />
       ))}

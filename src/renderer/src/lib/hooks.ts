@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAnimate } from 'motion/react'
 import { translator, type Translate } from '@shared/i18n'
-import { resolvePalette } from '@shared/palette'
+import { THEME_DEFAULTS, readableAccent, resolvePalette } from '@shared/palette'
 import { remainingMs, toDateKey } from '@shared/time'
 import type { AppData, Language, Settings } from '@shared/types'
 import { connect, useApp } from '@/state/useApp'
@@ -67,6 +67,8 @@ function applyTheme(settings: Settings, systemDark: boolean): void {
   }
   root.lang = settings.language
   root.style.setProperty('--accent', settings.accent)
+  const palette = custom ?? THEME_DEFAULTS[root.dataset.theme === 'light' ? 'light' : 'dark']
+  root.style.setProperty('--accent-text', readableAccent(settings.accent, palette))
   // Text on an accent fill: dark on light accents, white on dark ones.
   root.style.setProperty('--accent-ink', luminance(settings.accent) > 0.36 ? '#15171d' : '#ffffff')
 }
@@ -128,6 +130,20 @@ export function useRevealOnShow<T extends HTMLElement>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return scope
+}
+
+/** True when the window is wide enough for the roomier layouts. */
+export function useWide(minWidth = 1180): boolean {
+  const query = `(min-width: ${minWidth}px)`
+  const [wide, setWide] = useState(() => window.matchMedia(query).matches)
+  useEffect(() => {
+    const media = window.matchMedia(query)
+    const update = (): void => setWide(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [query])
+  return wide
 }
 
 /** "Today", "Tomorrow" or a short date for a YYYY-MM-DD key. */

@@ -130,6 +130,19 @@ export function customPalette(bg: string, surfaceChoice: string | null): Palette
   }
 }
 
+/**
+ * The accent colour adjusted for use as text: pulled toward the text colour just
+ * far enough to stay readable (4.5:1) on both the page and the cards. A dark
+ * accent on a dark background would otherwise be close to invisible.
+ */
+export function readableAccent(accent: string, p: Pick<Palette, 'bg' | 'surface' | 'raised' | 'ink'>): string {
+  for (let t = 0; t <= 1.0001; t += 0.05) {
+    const c = mix(accent, p.ink, t)
+    if (Math.min(contrast(c, p.bg), contrast(c, p.surface), contrast(c, p.raised)) >= 4.5) return c
+  }
+  return p.ink
+}
+
 /** The palette in effect, or null when the plain built-in theme applies. */
 export function resolvePalette(settings: Settings, systemDark: boolean): Palette | null {
   if (!settings.bgColor && !settings.surfaceColor) return null

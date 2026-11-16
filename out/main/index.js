@@ -113,7 +113,7 @@ var en = {
 	"cal.prev": "Previous",
 	"cal.next": "Next",
 	"cal.backlog": "Backlog",
-	"cal.backlogHint": "Drag a task onto the calendar to block time for it.",
+	"cal.backlogHint": "Drag a task onto an hour to block time for it, or onto the Flexible row to give it a day.",
 	"cal.backlogEmpty": "Every task is scheduled or done.",
 	"cal.newBlock": "New time block",
 	"cal.editBlock": "Edit time block",
@@ -194,7 +194,7 @@ var en = {
 	"cloud.local": "Local mode",
 	"cloud.synced": "Synced",
 	"cloud.syncing": "Syncing…",
-	"cloud.offline": "Offline",
+	"cloud.offline": "Sync failed",
 	"cloud.error": "Sync problem",
 	"cloud.choose": "Finish sign-in",
 	"cloud.pillLocal": "Your data is saved on this PC only. Click to set up cloud sync.",
@@ -216,13 +216,13 @@ var en = {
 	"account.linkSent": "Sign-in link sent. Open it on this PC while FocusFlow is running.",
 	"account.browser": "Finish signing in in your browser, then come back here.",
 	"account.signedInAs": "Signed in as {email}",
-	"account.lastSync": "Last synced at {time}",
+	"account.lastSync": "Last synced {time}",
 	"account.never": "Not synced yet",
 	"account.syncNow": "Sync now",
 	"account.signOut": "Sign out",
 	"account.status.synced": "Everything is synced.",
 	"account.status.syncing": "Syncing…",
-	"account.status.offline": "Offline. Your changes are saved on this PC and will upload when you are back online.",
+	"account.status.offline": "The last sync could not reach the server. Your changes are saved on this PC. Press Sync now to try again.",
 	"account.status.choose": "Choose what to do with the data on this PC to finish signing in.",
 	"account.pending": "{n} waiting to upload",
 	"account.err.network": "The server could not be reached. Check your internet connection and try again.",
@@ -243,6 +243,27 @@ var en = {
 	"signout.clear": "Clear this PC",
 	"signout.clearHint": "Removes tasks, calendar blocks, categories and tools from this PC. They stay safe in your account.",
 	"signout.pending": "{n} changes have not been uploaded yet. FocusFlow will try to upload them before signing out.",
+	"field.subtasks": "Steps",
+	"subtasks.add": "Add a step and press Enter",
+	"subtasks.progress": "{done}/{total} steps",
+	"subtasks.show": "Show steps",
+	"subtasks.hide": "Hide steps",
+	"subtasks.remove": "Remove step",
+	"subtasks.reorder": "Drag to reorder",
+	"subtasks.title": "Step",
+	"cal.flexible": "Flexible",
+	"cal.flexibleHint": "No time is set for this task. Start it whenever you like, or drag it onto an hour in the calendar to give it a time.",
+	"cal.editTask": "Edit task",
+	"sync.now": "Sync now",
+	"sync.unsynced": "Unsynced local changes",
+	"sync.unsyncedCount": "{n} unsynced",
+	"sync.ok": "Synced. This PC and your account are up to date.",
+	"sync.failed": "Sync failed. {reason}",
+	"sync.last": "Last synced {time}",
+	"sync.never": "Not synced yet",
+	"cloud.pending": "Unsynced changes",
+	"account.status.pending": "You have local changes that are not in your account yet. Press Sync now to upload them.",
+	"account.manual": "Syncing only happens when you press Sync now. Every change is always saved on this PC first.",
 	"common.save": "Save",
 	"common.cancel": "Cancel",
 	"common.delete": "Delete",
@@ -348,7 +369,7 @@ var dictionaries = {
 		"cal.prev": "Precedente",
 		"cal.next": "Successivo",
 		"cal.backlog": "Da pianificare",
-		"cal.backlogHint": "Trascina un'attività sul calendario per riservarle del tempo.",
+		"cal.backlogHint": "Trascina un'attività su un'ora per riservarle del tempo, oppure sulla riga Flessibile per assegnarle un giorno.",
 		"cal.backlogEmpty": "Tutte le attività sono pianificate o completate.",
 		"cal.newBlock": "Nuovo blocco di tempo",
 		"cal.editBlock": "Modifica blocco di tempo",
@@ -429,7 +450,7 @@ var dictionaries = {
 		"cloud.local": "Modalità locale",
 		"cloud.synced": "Sincronizzato",
 		"cloud.syncing": "Sincronizzazione…",
-		"cloud.offline": "Offline",
+		"cloud.offline": "Sincronizzazione non riuscita",
 		"cloud.error": "Problema di sincronizzazione",
 		"cloud.choose": "Completa l'accesso",
 		"cloud.pillLocal": "I tuoi dati sono salvati solo su questo PC. Fai clic per configurare la sincronizzazione.",
@@ -451,13 +472,13 @@ var dictionaries = {
 		"account.linkSent": "Link di accesso inviato. Aprilo su questo PC mentre FocusFlow è in esecuzione.",
 		"account.browser": "Completa l'accesso nel browser, poi torna qui.",
 		"account.signedInAs": "Accesso effettuato come {email}",
-		"account.lastSync": "Ultima sincronizzazione alle {time}",
+		"account.lastSync": "Ultima sincronizzazione {time}",
 		"account.never": "Non ancora sincronizzato",
 		"account.syncNow": "Sincronizza ora",
 		"account.signOut": "Esci",
 		"account.status.synced": "Tutto è sincronizzato.",
 		"account.status.syncing": "Sincronizzazione…",
-		"account.status.offline": "Offline. Le modifiche sono salvate su questo PC e verranno caricate quando tornerai online.",
+		"account.status.offline": "L'ultima sincronizzazione non ha raggiunto il server. Le modifiche sono salvate su questo PC. Premi Sincronizza ora per riprovare.",
 		"account.status.choose": "Scegli cosa fare con i dati su questo PC per completare l'accesso.",
 		"account.pending": "{n} in attesa di caricamento",
 		"account.err.network": "Impossibile raggiungere il server. Controlla la connessione a internet e riprova.",
@@ -478,6 +499,27 @@ var dictionaries = {
 		"signout.clear": "Svuota questo PC",
 		"signout.clearHint": "Rimuove attività, blocchi di calendario, categorie e strumenti da questo PC. Restano al sicuro nel tuo account.",
 		"signout.pending": "{n} modifiche non sono ancora state caricate. FocusFlow proverà a caricarle prima di uscire.",
+		"field.subtasks": "Passaggi",
+		"subtasks.add": "Aggiungi un passaggio e premi Invio",
+		"subtasks.progress": "{done}/{total} passaggi",
+		"subtasks.show": "Mostra i passaggi",
+		"subtasks.hide": "Nascondi i passaggi",
+		"subtasks.remove": "Rimuovi passaggio",
+		"subtasks.reorder": "Trascina per riordinare",
+		"subtasks.title": "Passaggio",
+		"cal.flexible": "Flessibile",
+		"cal.flexibleHint": "Questa attività non ha un orario. Iniziala quando vuoi, oppure trascinala su un'ora del calendario per assegnarle un orario.",
+		"cal.editTask": "Modifica attività",
+		"sync.now": "Sincronizza ora",
+		"sync.unsynced": "Modifiche locali non sincronizzate",
+		"sync.unsyncedCount": "{n} non sincronizzate",
+		"sync.ok": "Sincronizzato. Questo PC e il tuo account sono allineati.",
+		"sync.failed": "Sincronizzazione non riuscita. {reason}",
+		"sync.last": "Ultima sincronizzazione {time}",
+		"sync.never": "Non ancora sincronizzato",
+		"cloud.pending": "Modifiche non sincronizzate",
+		"account.status.pending": "Hai modifiche locali non ancora presenti nel tuo account. Premi Sincronizza ora per caricarle.",
+		"account.manual": "La sincronizzazione avviene solo quando premi Sincronizza ora. Ogni modifica viene sempre salvata prima su questo PC.",
 		"common.save": "Salva",
 		"common.cancel": "Annulla",
 		"common.delete": "Elimina",
@@ -843,6 +885,38 @@ function windowChrome(settings, systemDark) {
 		symbol: THEME_DEFAULTS[tone].muted
 	};
 }
+var MAX_TITLE = 200;
+/**
+* Validate a task's checklist from the UI, disk or the cloud: drop junk and
+* duplicate ids, keep the given order, and renumber positions 0..n-1.
+*/
+function sanitizeSubtasks(raw) {
+	if (!Array.isArray(raw)) return [];
+	const seen = /* @__PURE__ */ new Set();
+	const items = [];
+	for (const item of raw) {
+		if (!item || typeof item !== "object") continue;
+		const r = item;
+		const id = typeof r.id === "string" ? r.id.slice(0, 80) : "";
+		const title = typeof r.title === "string" ? r.title.trim().slice(0, MAX_TITLE) : "";
+		if (!id || !title || seen.has(id)) continue;
+		seen.add(id);
+		items.push({
+			id,
+			title,
+			isCompleted: r.isCompleted === true,
+			position: typeof r.position === "number" && Number.isFinite(r.position) ? r.position : items.length
+		});
+		if (items.length >= 50) break;
+	}
+	return items.map((s, index) => ({
+		s,
+		index
+	})).sort((a, b) => a.s.position - b.s.position || a.index - b.index).map(({ s }, position) => ({
+		...s,
+		position
+	}));
+}
 // src/shared/time.ts
 var MINUTE = 6e4;
 /** Countdown text: "24:59", or "1:05:00" past an hour. Rounds up so 0:00 only shows at zero. */
@@ -877,6 +951,7 @@ function applyAction(data, action, now) {
 		case "task/remove": return removeTask(data, action.id, now);
 		case "task/reorder": return reorderTasks(data, action.ids);
 		case "task/setStatus": return setTaskStatus(data, action.id, action.status, now);
+		case "task/toggleSubtask": return toggleSubtask(data, action.taskId, action.subtaskId);
 		case "event/upsert": return upsertEvent(data, action.event);
 		case "event/remove": return {
 			...data,
@@ -925,6 +1000,7 @@ function upsertTask(data, draft, now) {
 		};
 		merged.title = (merged.title ?? "").trim() || existing.title;
 		merged.tools = draft.tools === void 0 ? existing.tools : taskTools(data, draft.tools);
+		merged.subtasks = draft.subtasks === void 0 ? existing.subtasks : sanitizeSubtasks(draft.subtasks);
 		merged.estimateMin = clampMinutes(merged.estimateMin, existing.estimateMin);
 		let focus = data.focus;
 		if (focus.taskId === merged.id && focus.phase === "focus" && focus.status === "idle" && merged.estimateMin !== existing.estimateMin) {
@@ -949,6 +1025,7 @@ function upsertTask(data, draft, now) {
 		title,
 		notes: draft.notes ?? "",
 		tools: taskTools(data, draft.tools),
+		subtasks: sanitizeSubtasks(draft.subtasks),
 		estimateMin: clampMinutes(draft.estimateMin, data.settings.focusMin),
 		priority: draft.priority ?? "medium",
 		categoryId: draft.categoryId ?? null,
@@ -977,6 +1054,22 @@ function removeTask(data, id, now) {
 			...e,
 			taskId: null
 		} : e)
+	};
+}
+/** Tick or untick one checklist step. */
+function toggleSubtask(data, taskId, subtaskId) {
+	const task = data.tasks.find((t) => t.id === taskId);
+	if (!task || !task.subtasks.some((s) => s.id === subtaskId)) return data;
+	const subtasks = task.subtasks.map((s) => s.id === subtaskId ? {
+		...s,
+		isCompleted: !s.isCompleted
+	} : s);
+	return {
+		...data,
+		tasks: data.tasks.map((t) => t.id === taskId ? {
+			...t,
+			subtasks
+		} : t)
 	};
 }
 /** `ids` is the new order of some or all tasks; unlisted tasks keep their relative order after them. */
@@ -2178,6 +2271,7 @@ function normalize(raw, now) {
 		title: t.title.trim(),
 		notes: str$1(t.notes, ""),
 		tools: linkTools(sanitizeTools(t.tools), library),
+		subtasks: sanitizeSubtasks(t.subtasks),
 		estimateMin: Math.max(1, Math.round(num$1(t.estimateMin, settings.focusMin))),
 		priority: oneOf$1(t.priority, [
 			"high",
@@ -2308,16 +2402,14 @@ var SyncError = class extends Error {
 		this.kind = kind;
 	}
 };
-var CHANGE_DELAY_MS = 1500;
-var POLL_MS = 6e4;
-var RETRY_MS = 3e4;
 /**
-* Keeps this PC's data and a cloud account in step.
+* Keeps this PC's data and a cloud account in step, on request.
 *
-* The app always reads and writes local data first. This engine watches those
-* changes, queues them (the queue is saved to disk), and in the background
-* pulls remote changes, merges them, and uploads the queue. If the cloud cannot
-* be reached the queue simply waits and is retried.
+* The app always reads and writes local data. This engine only watches those
+* changes and remembers which records still need uploading (that list is saved
+* to disk). Nothing is sent or fetched in the background: a sync runs when the
+* user presses "Sync now", signs in, or signs out. One sync pulls remote
+* changes, merges them (the newer copy of a record wins), then uploads the list.
 */
 var SyncEngine = class {
 	controller;
@@ -2327,13 +2419,10 @@ var SyncEngine = class {
 	phase = "local";
 	error = null;
 	running = null;
-	again = false;
-	/** Bumped whenever the account changes, so a cycle in flight for the old one stops. */
+	/** Bumped whenever the account changes, so a sync in flight for the old one stops. */
 	epoch = 0;
 	/** After "keep cloud only": add defaults for anything the account turned out not to have. */
 	seedMissing = false;
-	timer = null;
-	poll = null;
 	listeners = /* @__PURE__ */ new Set();
 	unsubscribe;
 	constructor(controller, options) {
@@ -2343,12 +2432,8 @@ var SyncEngine = class {
 			if (origin !== "local") return;
 			if (!trackChange(this.meta, next, prev, (/* @__PURE__ */ new Date()).toISOString())) return;
 			controller.updateMeta(() => {});
-			if (this.linked) {
-				this.emit();
-				this.schedule(CHANGE_DELAY_MS);
-			}
+			if (this.linked) this.emit();
 		});
-		if (!options.manual) this.poll = setInterval(() => this.linked && this.schedule(0), POLL_MS);
 	}
 	get meta() {
 		return this.controller.meta.sync;
@@ -2359,11 +2444,12 @@ var SyncEngine = class {
 	}
 	get state() {
 		const { tasks, events } = this.controller.data;
+		const pending = this.linked ? pendingCount(this.meta) : 0;
 		return {
 			configured: this.options.configured,
 			user: this.user,
-			phase: this.phase,
-			pending: this.linked ? pendingCount(this.meta) : 0,
+			phase: this.phase === "synced" && pending > 0 ? "pending" : this.phase,
+			pending,
 			lastSyncedAt: this.meta.lastSyncedAt,
 			error: this.error,
 			local: {
@@ -2385,8 +2471,12 @@ var SyncEngine = class {
 		this.error = error;
 		this.emit();
 	}
-	/** The signed-in account changed (sign-in, restored session, or session lost). */
-	setUser(user, remote) {
+	/**
+	* The signed-in account changed. `interactive` is true when the user has just
+	* signed in (so a first sync is expected); a session restored at startup does
+	* not sync by itself.
+	*/
+	setUser(user, remote, interactive = false) {
 		if ((user?.id ?? null) === (this.user?.id ?? null)) {
 			this.remote = remote;
 			return;
@@ -2399,8 +2489,8 @@ var SyncEngine = class {
 			return;
 		}
 		if (this.meta.userId === user.id) {
-			this.setPhase("syncing");
-			this.schedule(0);
+			this.setPhase("synced");
+			if (interactive) this.syncNow();
 			return;
 		}
 		const { tasks, events } = this.controller.data;
@@ -2440,28 +2530,13 @@ var SyncEngine = class {
 		this.controller.updateMeta(() => {});
 		this.setPhase("local");
 	}
-	/** Run a sync now (or join the one in progress) and wait for it. */
+	/** Run one sync and wait for it. If one is already running, wait for that and then run again. */
 	async syncNow() {
-		if (this.timer) clearTimeout(this.timer);
-		this.timer = null;
-		if (this.running) {
-			this.again = true;
-			await this.running;
-			return;
-		}
+		if (this.running) await this.running;
 		this.running = this.cycle().finally(() => {
 			this.running = null;
-			if (this.again) {
-				this.again = false;
-				this.schedule(0);
-			}
 		});
 		await this.running;
-	}
-	schedule(delay) {
-		if (this.options.manual) return;
-		if (this.timer) clearTimeout(this.timer);
-		this.timer = setTimeout(() => void this.syncNow(), delay);
 	}
 	async cycle() {
 		const remote = this.remote;
@@ -2469,7 +2544,7 @@ var SyncEngine = class {
 		const epoch = this.epoch;
 		const stale = () => epoch !== this.epoch;
 		const meta = this.meta;
-		if (this.phase !== "synced") this.setPhase("syncing");
+		this.setPhase("syncing");
 		try {
 			const pulled = {};
 			for (const table of TABLES) {
@@ -2501,7 +2576,6 @@ var SyncEngine = class {
 			const kind = error instanceof SyncError ? error.kind : "server";
 			if (kind === "network") this.setPhase("offline", "network");
 			else this.setPhase("error", kind === "schema" ? "schema" : error instanceof Error ? error.message : String(error));
-			this.schedule(RETRY_MS);
 		}
 	}
 	/** A brand-new account has no categories, tools or settings: give it the defaults. */
@@ -2532,10 +2606,6 @@ var SyncEngine = class {
 	}
 	dispose() {
 		this.unsubscribe();
-		if (this.timer) clearTimeout(this.timer);
-		if (this.poll) clearInterval(this.poll);
-		this.timer = null;
-		this.poll = null;
 	}
 };
 // node_modules/@supabase/supabase-js/dist/tracingRegistry.mjs
@@ -24174,6 +24244,7 @@ function toRow(table, userId, id, updatedAt, record) {
 				category_id: t.categoryId,
 				due_date: t.dueDate,
 				tools: t.tools,
+				subtasks: t.subtasks,
 				is_completed: t.status === "done",
 				position: t.order,
 				spent_ms: Math.round(t.spentMs),
@@ -24243,6 +24314,7 @@ function recordFrom(table, id, row) {
 				title,
 				notes: str(row.notes),
 				tools: sanitizeTools(row.tools),
+				subtasks: sanitizeSubtasks(row.subtasks),
 				estimateMin: Math.max(1, Math.round(num(row.estimated_minutes, 25))),
 				priority: oneOf(row.priority, [
 					"high",
@@ -24500,19 +24572,25 @@ function startCloud(controller) {
 		client = null;
 	}
 	const engine = new SyncEngine(controller, { configured: client !== null });
-	const applySession = (session) => {
-		if (!client || !session?.user) engine.setUser(null, null);
-		else engine.setUser({
+	let signingInUntil = 0;
+	const applySession = (session, event) => {
+		if (!client || !session?.user) {
+			engine.setUser(null, null);
+			return;
+		}
+		const interactive = event === "SIGNED_IN" && Date.now() < signingInUntil;
+		if (interactive) signingInUntil = 0;
+		engine.setUser({
 			id: session.user.id,
 			email: session.user.email ?? null
-		}, new SupabaseRemote(client, session.user.id));
+		}, new SupabaseRemote(client, session.user.id), interactive);
 	};
 	let subscription;
 	try {
-		subscription = client?.auth.onAuthStateChange((_event, session) => {
+		subscription = client?.auth.onAuthStateChange((event, session) => {
 			setTimeout(() => {
 				try {
-					applySession(session);
+					applySession(session, event);
 				} catch (error) {
 					console.error("FocusFlow: could not apply the sign-in session.", error);
 				}
@@ -24573,6 +24651,8 @@ function startCloud(controller) {
 			ok: false,
 			error: "not-configured"
 		};
+		if (command.type === "sign-in" || command.type === "sign-up") signingInUntil = Date.now() + 6e4;
+		if (command.type === "magic-link" || command.type === "oauth") signingInUntil = Date.now() + CALLBACK_WINDOW_MS;
 		switch (command.type) {
 			case "sign-in": {
 				const { error } = await client.auth.signInWithPassword({
@@ -24628,9 +24708,19 @@ function startCloud(controller) {
 				await engine.detach(command.keepLocal);
 				await client.auth.signOut({ scope: "local" }).catch(() => {});
 				return { ok: true };
-			case "sync-now":
+			case "sync-now": {
 				await engine.syncNow();
+				const { phase, error } = engine.state;
+				if (phase === "offline") return {
+					ok: false,
+					error: "network"
+				};
+				if (phase === "error") return {
+					ok: false,
+					error: error ?? "error"
+				};
 				return { ok: true };
+			}
 		}
 	};
 	electron.ipcMain.handle(IPC.getCloud, () => engine.state);
@@ -24646,13 +24736,10 @@ function startCloud(controller) {
 		}
 	});
 	const stopBroadcast = engine.onState((state) => broadcastTo(IPC.cloud, state));
-	const onResume = () => void engine.syncNow();
-	electron.powerMonitor.on("resume", onResume);
 	return {
 		engine,
 		dispose: () => {
 			stopBroadcast();
-			electron.powerMonitor.off("resume", onResume);
 			subscription?.data.subscription.unsubscribe();
 			stopServer();
 			engine.dispose();

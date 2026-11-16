@@ -5,9 +5,10 @@ import { formatDuration } from '@shared/time'
 import type { Task } from '@shared/types'
 import { AnimatePresence, motion } from 'motion/react'
 import { TaskMeta } from '@/components/badges'
-import { ToolPill, ToolPills } from '@/components/tools'
+import { SubtaskChecklist, SubtaskProgress } from '@/components/subtasks'
+import { ToolPill } from '@/components/tools'
 import { Button, IconButton, inputClass } from '@/components/ui'
-import { useData, useNow, useRemaining, useT } from '@/lib/hooks'
+import { useData, useNow, useRemaining, useT, useWide } from '@/lib/hooks'
 import { newId, useApp } from '@/state/useApp'
 import { Clock, Dial, type DialTone } from './Dial'
 
@@ -38,12 +39,14 @@ export function FocusView() {
           : t('focus.ready')
 
   const upNext = sortedTasks(data.tasks).filter((x) => x.status === 'todo' && x.id !== focus.taskId)
+  const wide = useWide()
   const choosing = !task && !(onBreak && focus.status !== 'finished')
   const heroKey = task && !onBreak ? `task-${task.id}` : onBreak && focus.status !== 'finished' ? 'break' : 'none'
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1040px] flex-col px-12 pb-8 pt-6">
-      <section className="flex items-center gap-14 py-6">
+    <div className="h-full overflow-y-auto">
+    <div className="mx-auto flex min-h-full w-full max-w-[1040px] flex-col px-12 pb-8 pt-6">
+      <section className="flex shrink-0 items-center gap-10 py-6 xl:gap-14">
         <Dial fraction={fraction} tone={tone}>
           <div className="flex flex-col items-center gap-3">
             <Clock ms={remaining} className={`text-[64px] ${task || onBreak ? 'text-ink' : 'text-faint'}`} />
@@ -86,11 +89,11 @@ export function FocusView() {
       </section>
 
       {upNext.length > 0 && (
-        <section className="mt-4 flex min-h-0 flex-1 flex-col">
+        <section className="mt-4 flex flex-col">
           <h2 className="mb-2 text-[13px] font-semibold text-muted">
             {choosing ? t('focus.pick') : t('focus.upNext')}
           </h2>
-          <ul className="min-h-0 flex-1 overflow-y-auto border-t border-line">
+          <ul className="border-t border-line">
             <AnimatePresence initial={false}>
               {upNext.map((x) => (
                 <motion.li
@@ -101,9 +104,15 @@ export function FocusView() {
                   transition={{ duration: 0.22, ease: [0.2, 0.8, 0.2, 1] }}
                   className="group flex items-center gap-4 overflow-hidden border-b border-line px-1"
                 >
-                  <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{x.title}</span>
-                  <ToolPills tools={x.tools} max={2} />
-                  <TaskMeta task={x} />
+                  <span title={x.title} className="min-w-0 flex-1 truncate text-[15px] font-medium">
+                    {x.title}
+                  </span>
+                  <SubtaskProgress subtasks={x.subtasks} />
+                  {wide ? (
+                    <TaskMeta task={x} className="shrink-0" />
+                  ) : (
+                    <span className="shrink-0 text-xs tabular-nums text-muted">{formatDuration(x.estimateMin)}</span>
+                  )}
                   <Button size="sm" variant="ghost" onClick={() => dispatch({ type: 'focus/set', taskId: x.id })}>
                     {t('focus.now')}
                   </Button>
@@ -113,6 +122,7 @@ export function FocusView() {
           </ul>
         </section>
       )}
+    </div>
     </div>
   )
 }
@@ -130,7 +140,10 @@ function ActiveTask({ task, spentMs }: { task: Task; spentMs: number }) {
 
   return (
     <div>
-      <h1 className="line-clamp-3 font-display text-[40px] font-semibold leading-[1.1] tracking-[-0.01em]">
+      <h1
+        title={task.title}
+        className="line-clamp-3 break-words font-display text-[32px] font-semibold leading-[1.12] tracking-[-0.01em] xl:text-[40px]"
+      >
         {task.title}
       </h1>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -156,8 +169,17 @@ function ActiveTask({ task, spentMs }: { task: Task; spentMs: number }) {
           </ul>
         </div>
       )}
+      {task.subtasks.length > 0 && (
+        <div className="mt-5 max-w-[520px]">
+          <div className="mb-1.5 flex items-center justify-between gap-3">
+            <h2 className="text-[13px] font-semibold text-muted">{t('field.subtasks')}</h2>
+            <SubtaskProgress subtasks={task.subtasks} />
+          </div>
+          <SubtaskChecklist task={task} className="max-h-[188px] overflow-y-auto pr-1" />
+        </div>
+      )}
       {task.notes && (
-        <p className="mt-4 line-clamp-3 max-w-[60ch] whitespace-pre-line text-[15px] text-muted">{task.notes}</p>
+        <p className="mt-4 line-clamp-3 max-w-[60ch] whitespace-pre-line break-words text-[15px] text-muted">{task.notes}</p>
       )}
       {status === 'finished' && <p className="mt-4 text-[15px] text-accent-text">{t('focus.timeUpHint')}</p>}
 

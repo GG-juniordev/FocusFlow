@@ -36,35 +36,29 @@ export class SyncError extends Error {
 
 interface Options {
   configured: boolean
-  /** Turn off timers; tests drive sync by calling syncNow(). */
-  manual?: boolean
 }
 
-const CHANGE_DELAY_MS = 1_500
-const POLL_MS = 60_000
-const RETRY_MS = 30_000
+type Phase = 'local' | 'choose' | 'syncing' | 'synced' | 'offline' | 'error'
 
 /**
- * Keeps this PC's data and a cloud account in step.
+ * Keeps this PC's data and a cloud account in step, on request.
  *
- * The app always reads and writes local data first. This engine watches those
- * changes, queues them (the queue is saved to disk), and in the background
- * pulls remote changes, merges them, and uploads the queue. If the cloud cannot
- * be reached the queue simply waits and is retried.
+ * The app always reads and writes local data. This engine only watches those
+ * changes and remembers which records still need uploading (that list is saved
+ * to disk). Nothing is sent or fetched in the background: a sync runs when the
+ * user presses "Sync now", signs in, or signs out. One sync pulls remote
+ * changes, merges them (the newer copy of a record wins), then uploads the list.
  */
 export class SyncEngine {
   private user: SyncUser | null = null
   private remote: Remote | null = null
-  private phase: CloudState['phase'] = 'local'
+  private phase: Phase = 'local'
   private error: string | null = null
   private running: Promise<void> | null = null
-  private again = false
-  /** Bumped whenever the account changes, so a cycle in flight for the old one stops. */
+  /** Bumped whenever the account changes, so a sync in flight for the old one stops. */
   private epoch = 0
   /** After "keep cloud only": add defaults for anything the account turned out not to have. */
   private seedMissing = false
-  private timer: NodeJS.Timeout | null = null
-  private poll: NodeJS.Timeout | null = null
   private readonly listeners = new Set<(state: CloudState) => void>()
   private readonly unsubscribe: () => void
 
@@ -76,14 +70,9 @@ export class SyncEngine {
       if (origin !== 'local') return
       if (!trackChange(this.meta, next, prev, new Date().toISOString())) return
       controller.updateMeta(() => {})
-      if (this.linked) {
-        this.emit()
-        this.schedule(CHANGE_DELAY_MS)
-      }
+      // Only the "unsynced changes" count changes here; nothing is uploaded.
+      if (this.linked) this.emit()
     })
-    if (!options.manual) {
-      this.poll = setInterval(() => this.linked && this.schedule(0), POLL_MS)
-    }
   }
 
   private get meta(): SyncMeta {
@@ -97,11 +86,13 @@ export class SyncEngine {
 
   get state(): CloudState {
     const { tasks, events } = this.controller.data
+    const pending = this.linked ? pendingCount(this.meta) : 0
     return {
       configured: this.options.configured,
       user: this.user,
-      phase: this.phase,
-      pending: this.linked ? pendingCount(this.meta) : 0,
+      // "Synced" only while there is nothing waiting to be uploaded.
+      phase: this.phase === 'synced' && pending > 0 ? 'pending' : this.phase,
+      pending,
       lastSyncedAt: this.meta.lastSyncedAt,
       error: this.error,
       local: { tasks: tasks.length, events: events.length }
@@ -118,14 +109,18 @@ export class SyncEngine {
     for (const listener of this.listeners) listener(state)
   }
 
-  private setPhase(phase: CloudState['phase'], error: string | null = null): void {
+  private setPhase(phase: Phase, error: string | null = null): void {
     this.phase = phase
     this.error = error
     this.emit()
   }
 
-  /** The signed-in account changed (sign-in, restored session, or session lost). */
-  setUser(user: SyncUser | null, remote: Remote | null): void {
+  /**
+   * The signed-in account changed. `interactive` is true when the user has just
+   * signed in (so a first sync is expected); a session restored at startup does
+   * not sync by itself.
+   */
+  setUser(user: SyncUser | null, remote: Remote | null, interactive = false): void {
     if ((user?.id ?? null) === (this.user?.id ?? null)) {
       // Same account (e.g. a token refresh): nothing to redo.
       this.remote = remote
@@ -140,8 +135,8 @@ export class SyncEngine {
       return
     }
     if (this.meta.userId === user.id) {
-      this.setPhase('syncing')
-      this.schedule(0)
+      this.setPhase('synced')
+      if (interactive) void this.syncNow()
       return
     }
     const { tasks, events } = this.controller.data
@@ -178,7 +173,7 @@ export class SyncEngine {
 
   /** Sign-out: back to local mode, keeping or clearing what is on this PC. */
   async detach(keepLocal: boolean): Promise<void> {
-    // Give queued changes a last chance to upload before the link is cut.
+    // Give unsynced changes a last chance to upload before the link is cut.
     if (this.linked && pendingCount(this.meta) > 0) await this.syncNow()
     this.epoch++
     this.user = null
@@ -193,29 +188,13 @@ export class SyncEngine {
     this.setPhase('local')
   }
 
-  /** Run a sync now (or join the one in progress) and wait for it. */
+  /** Run one sync and wait for it. If one is already running, wait for that and then run again. */
   async syncNow(): Promise<void> {
-    if (this.timer) clearTimeout(this.timer)
-    this.timer = null
-    if (this.running) {
-      this.again = true
-      await this.running
-      return
-    }
+    if (this.running) await this.running
     this.running = this.cycle().finally(() => {
       this.running = null
-      if (this.again) {
-        this.again = false
-        this.schedule(0)
-      }
     })
     await this.running
-  }
-
-  private schedule(delay: number): void {
-    if (this.options.manual) return
-    if (this.timer) clearTimeout(this.timer)
-    this.timer = setTimeout(() => void this.syncNow(), delay)
   }
 
   private async cycle(): Promise<void> {
@@ -224,7 +203,7 @@ export class SyncEngine {
     const epoch = this.epoch
     const stale = (): boolean => epoch !== this.epoch
     const meta = this.meta
-    if (this.phase !== 'synced') this.setPhase('syncing')
+    this.setPhase('syncing')
 
     try {
       const pulled: Partial<Record<(typeof TABLES)[number], number>> = {}
@@ -258,9 +237,9 @@ export class SyncEngine {
       if (stale()) return
       this.controller.updateMeta(() => {})
       const kind = error instanceof SyncError ? error.kind : 'server'
+      // Nothing is lost: unsynced changes stay listed for the next attempt.
       if (kind === 'network') this.setPhase('offline', 'network')
       else this.setPhase('error', kind === 'schema' ? 'schema' : error instanceof Error ? error.message : String(error))
-      this.schedule(RETRY_MS)
     }
   }
 
@@ -287,9 +266,5 @@ export class SyncEngine {
 
   dispose(): void {
     this.unsubscribe()
-    if (this.timer) clearTimeout(this.timer)
-    if (this.poll) clearInterval(this.poll)
-    this.timer = null
-    this.poll = null
   }
 }

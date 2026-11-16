@@ -4,6 +4,7 @@ import { CalendarDays, Check, ListTodo, Pause, PictureInPicture2, Play, Settings
 import { focusedTask } from '@shared/model'
 import type { MessageKey } from '@shared/i18n'
 import { BootScreen } from '@/components/ErrorBoundary'
+import { Toaster } from '@/components/toast'
 import { cn } from '@/components/ui'
 import { CalendarView } from '@/features/calendar/CalendarView'
 import { MigrationModal } from '@/features/cloud/CloudModals'
@@ -67,6 +68,7 @@ function Shell() {
       </div>
       {/* First sign-in on a PC that already has data: ask before anything is transferred. */}
       <AnimatePresence>{choosing && <MigrationModal key="migrate" />}</AnimatePresence>
+      <Toaster />
     </div>
   )
 }

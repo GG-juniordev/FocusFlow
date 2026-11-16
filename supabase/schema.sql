@@ -62,6 +62,7 @@ create table if not exists public.tasks (
   category_id        text,
   due_date           date,
   tools              jsonb       not null default '[]'::jsonb,
+  subtasks           jsonb       not null default '[]'::jsonb,
   is_completed       boolean     not null default false,
   position           double precision not null default 0,
   spent_ms           bigint      not null default 0,
@@ -72,6 +73,10 @@ create table if not exists public.tasks (
   synced_at          timestamptz not null default clock_timestamp(),
   primary key (user_id, id)
 );
+
+-- Upgrade for databases created before sub-tasks existed. Safe to run again.
+-- subtasks holds the checklist: [{ "id", "title", "isCompleted", "position" }, ...]
+alter table public.tasks add column if not exists subtasks jsonb not null default '[]'::jsonb;
 
 -- ---------------------------------------------------------------------------
 -- calendar_events

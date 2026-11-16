@@ -1,13 +1,14 @@
 {
   "schemaVersion": 1,
-  "savedAt": 1794769134433,
+  "savedAt": 1794811095835,
   "data": {
     "tasks": [
       {
-        "id": "7b7a6d4e-58d7-42d7-a77a-55f6412b50a9",
+        "id": "66472e65-f825-446c-bb15-ab101ec4dc0a",
         "title": "Draft the quarterly report",
         "notes": "",
         "tools": [],
+        "subtasks": [],
         "estimateMin": 25,
         "priority": "medium",
         "categoryId": null,
@@ -15,29 +16,31 @@
         "status": "todo",
         "order": 1,
         "spentMs": 0,
-        "createdAt": 1794769107846,
+        "createdAt": 1794811065049,
         "completedAt": null
       },
       {
-        "id": "1f0cb4d3-8dcf-446f-8dd7-c4321f20a3ed",
+        "id": "e7a541f2-0398-457f-8502-c97522188776",
         "title": "Review pull requests",
         "notes": "",
         "tools": [],
+        "subtasks": [],
         "estimateMin": 25,
         "priority": "medium",
         "categoryId": null,
-        "dueDate": "2026-11-12",
+        "dueDate": "2026-11-19",
         "status": "todo",
         "order": 2,
         "spentMs": 0,
-        "createdAt": 1794769107873,
+        "createdAt": 1794811065072,
         "completedAt": null
       },
       {
-        "id": "1229d222-7330-4cb2-9734-1a22097e0363",
+        "id": "755a05ea-6057-40fb-a074-f6554bff7f99",
         "title": "Plan next sprint",
         "notes": "",
         "tools": [],
+        "subtasks": [],
         "estimateMin": 25,
         "priority": "medium",
         "categoryId": null,
@@ -45,11 +48,11 @@
         "status": "done",
         "order": 3,
         "spentMs": 0,
-        "createdAt": 1794769107891,
-        "completedAt": 1794769134163
+        "createdAt": 1794811065090,
+        "completedAt": 1794811095567
       },
       {
-        "id": "9623df0b-d4e6-4125-bc8b-7bfb7d71a5a9",
+        "id": "57b0105f-f96c-48cc-9ff7-1f348a378b76",
         "title": "Study Italian verbs",
         "notes": "Chapter 4, irregular verbs",
         "tools": [
@@ -68,7 +71,7 @@
             "icon": null
           },
           {
-            "id": "00a2f383-7989-4724-a7e2-5a79ee1316a5",
+            "id": "3843570f-741d-4d72-a0f2-53630478c83d",
             "label": "Anki",
             "url": null,
             "preset": null,
@@ -88,50 +91,65 @@
             }
           }
         ],
+        "subtasks": [
+          {
+            "id": "505c1c78-f926-4664-bb25-ac95f602d9e4",
+            "title": "Do the exercises",
+            "isCompleted": true,
+            "position": 0
+          },
+          {
+            "id": "72b9b4d8-60e1-461a-af09-7796063323fa",
+            "title": "Read chapter 4",
+            "isCompleted": true,
+            "position": 1
+          }
+        ],
         "estimateMin": 60,
         "priority": "high",
         "categoryId": "cat-study",
         "dueDate": "2026-11-20",
         "status": "todo",
         "order": 0,
-        "spentMs": 4497,
-        "createdAt": 1794769108986,
+        "spentMs": 4456,
+        "createdAt": 1794811066800,
         "completedAt": null
       },
       {
-        "id": "5709cc2a-e98b-4aa1-991a-366d0f3f5341",
+        "id": "c58cffa7-0afc-46cc-a4fb-af600e796eea",
         "title": "Dentist appointment",
         "notes": "",
         "tools": [],
+        "subtasks": [],
         "estimateMin": 25,
         "priority": "medium",
         "categoryId": null,
-        "dueDate": "2026-11-15",
+        "dueDate": "2026-11-16",
         "status": "todo",
         "order": 4,
         "spentMs": 0,
-        "createdAt": 1794769118188,
+        "createdAt": 1794811076981,
         "completedAt": null
       }
     ],
     "events": [
       {
-        "id": "be4d1dab-1d9d-440c-bc85-f529f85992cc",
+        "id": "87d3a2c4-8eed-4151-9ae4-74ce8f9ea780",
         "title": "Review pull requests",
         "notes": "",
-        "start": "2026-11-12T17:15:00.000Z",
-        "end": "2026-11-12T18:40:00.000Z",
+        "start": "2026-11-19T10:15:00.000Z",
+        "end": "2026-11-19T11:40:00.000Z",
         "categoryId": null,
-        "taskId": "1f0cb4d3-8dcf-446f-8dd7-c4321f20a3ed"
+        "taskId": "e7a541f2-0398-457f-8502-c97522188776"
       },
       {
-        "id": "0cd64f73-1b44-41d3-91c5-57e20b57b7fd",
+        "id": "7d14a7b9-b35f-4bf5-83db-c478ba5fd86d",
         "title": "Dentist appointment",
         "notes": "",
-        "start": "2026-11-15T19:00:00.000Z",
-        "end": "2026-11-15T19:25:00.000Z",
+        "start": "2026-11-16T07:00:00.000Z",
+        "end": "2026-11-16T07:25:00.000Z",
         "categoryId": null,
-        "taskId": "5709cc2a-e98b-4aa1-991a-366d0f3f5341"
+        "taskId": "c58cffa7-0afc-46cc-a4fb-af600e796eea"
       }
     ],
     "categories": [
@@ -198,7 +216,7 @@
         }
       },
       {
-        "id": "00a2f383-7989-4724-a7e2-5a79ee1316a5",
+        "id": "3843570f-741d-4d72-a0f2-53630478c83d",
         "label": "Anki",
         "url": null,
         "preset": null,
@@ -208,7 +226,7 @@
         }
       },
       {
-        "id": "5e1866b4-bcf6-47e7-82ec-e0d2ae6edfb4",
+        "id": "d4e0fd2c-f552-4b0e-869f-421a2a4dbd9b",
         "label": "Khan Academy",
         "url": null,
         "preset": null,
@@ -232,11 +250,11 @@
       "breakMin": 5
     },
     "focus": {
-      "taskId": "9623df0b-d4e6-4125-bc8b-7bfb7d71a5a9",
+      "taskId": "57b0105f-f96c-48cc-9ff7-1f348a378b76",
       "phase": "focus",
       "status": "paused",
       "durationMs": 3600000,
-      "remainingMs": 3595503,
+      "remainingMs": 3595544,
       "endsAt": null,
       "runStartedAt": null
     }
@@ -259,23 +277,23 @@
       "stamps": {
         "categories": {},
         "tools": {
-          "00a2f383-7989-4724-a7e2-5a79ee1316a5": "2026-11-15T18:58:42.815Z",
-          "builtin-github": "2026-11-15T18:58:44.379Z",
-          "5e1866b4-bcf6-47e7-82ec-e0d2ae6edfb4": "2026-11-15T18:58:45.489Z"
+          "3843570f-741d-4d72-a0f2-53630478c83d": "2026-11-16T06:38:04.348Z",
+          "builtin-github": "2026-11-16T06:38:05.916Z",
+          "d4e0fd2c-f552-4b0e-869f-421a2a4dbd9b": "2026-11-16T06:38:06.992Z"
         },
         "tasks": {
-          "7b7a6d4e-58d7-42d7-a77a-55f6412b50a9": "2026-11-15T18:58:29.690Z",
-          "1f0cb4d3-8dcf-446f-8dd7-c4321f20a3ed": "2026-11-15T18:58:37.071Z",
-          "1229d222-7330-4cb2-9734-1a22097e0363": "2026-11-15T18:58:54.164Z",
-          "9623df0b-d4e6-4125-bc8b-7bfb7d71a5a9": "2026-11-15T18:58:52.416Z",
-          "5709cc2a-e98b-4aa1-991a-366d0f3f5341": "2026-11-15T18:58:38.188Z"
+          "66472e65-f825-446c-bb15-ab101ec4dc0a": "2026-11-16T06:37:47.969Z",
+          "e7a541f2-0398-457f-8502-c97522188776": "2026-11-16T06:37:55.817Z",
+          "755a05ea-6057-40fb-a074-f6554bff7f99": "2026-11-16T06:38:15.568Z",
+          "57b0105f-f96c-48cc-9ff7-1f348a378b76": "2026-11-16T06:38:13.859Z",
+          "c58cffa7-0afc-46cc-a4fb-af600e796eea": "2026-11-16T06:37:56.981Z"
         },
         "events": {
-          "be4d1dab-1d9d-440c-bc85-f529f85992cc": "2026-11-15T18:58:37.071Z",
-          "0cd64f73-1b44-41d3-91c5-57e20b57b7fd": "2026-11-15T18:58:38.189Z"
+          "87d3a2c4-8eed-4151-9ae4-74ce8f9ea780": "2026-11-16T06:37:55.817Z",
+          "7d14a7b9-b35f-4bf5-83db-c478ba5fd86d": "2026-11-16T06:37:56.982Z"
         },
         "settings": {
-          "settings": "2026-11-15T18:58:48.217Z"
+          "settings": "2026-11-16T06:38:09.711Z"
         }
       },
       "dirty": {

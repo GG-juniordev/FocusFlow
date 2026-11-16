@@ -52,6 +52,16 @@ async function drag(page, from, to) {
   await page.mouse.up()
   await page.waitForTimeout(250)
 }
+/** Press Next/Previous until the calendar shows the given day. */
+async function api_goto(page, dayKey) {
+  for (let i = 0; i < 60; i++) {
+    const range = await page.evaluate(() => [...document.querySelectorAll('.fc-timegrid-col[data-date]')].map((c) => c.dataset.date))
+    if (range.includes(dayKey)) return
+    await page.getByRole('button', { name: dayKey < range[0] ? 'Previous' : 'Next', exact: true }).click()
+    await page.waitForTimeout(350)
+  }
+  throw new Error('could not reach ' + dayKey)
+}
 const stored = async () => JSON.parse(await readFile(resolve(dataDir, 'data.json'), 'utf8'))
 
 await rm(resolve(root, '.smoke'), { recursive: true, force: true })
@@ -81,6 +91,21 @@ await dialog.getByRole('button', { name: '1h', exact: true }).click()
 await dialog.getByRole('radio', { name: 'High' }).click()
 await dialog.getByRole('button', { name: 'Study', exact: true }).click()
 await dialog.locator('input[type=date]').fill('2026-11-20')
+// Steps: add three, remove one, reorder by dragging.
+const stepInput = dialog.getByPlaceholder('Add a step and press Enter')
+for (const title of ['Read chapter 4', 'Throwaway step', 'Do the exercises']) {
+  await stepInput.fill(title)
+  await stepInput.press('Enter')
+}
+check((await dialog.count()) === 1, 'Enter in the steps field does not submit the task')
+await dialog.getByRole('button', { name: 'Remove step: Throwaway step' }).click()
+const stepRows = dialog.getByTestId('subtask-editor').locator('li')
+await drag(
+  page,
+  await center(stepRows.nth(1).getByRole('button', { name: 'Drag to reorder' })),
+  await center(stepRows.nth(0).getByRole('button', { name: 'Drag to reorder' }))
+)
+check((await stepRows.first().locator('input').inputValue()) === 'Do the exercises', 'steps can be reordered by dragging')
 // Tools: one preset chip, one pasted link, one custom name.
 await dialog.getByRole('button', { name: 'Google', exact: true }).click()
 const toolInput = dialog.getByPlaceholder('Add a tool or paste a link, then press Enter')
@@ -95,6 +120,19 @@ await shot(page, '02-task-editor')
 await dialog.getByRole('button', { name: 'Save', exact: true }).click()
 check((await page.locator('main li').count()) === 4, 'task editor saves a fourth task')
 check(await page.locator('main li').last().getByText('1h', { exact: true }).isVisible(), 'estimate badge shows 1h')
+const studySteps = (await page.waitForTimeout(400).then(stored)).data.tasks.find((x) => x.title === 'Study Italian verbs').subtasks
+check(
+  JSON.stringify(studySteps.map((x) => [x.title, x.position, x.isCompleted])) === JSON.stringify([['Do the exercises', 0, false], ['Read chapter 4', 1, false]]),
+  'steps are saved in order with the task'
+)
+// Tick a step straight from the task card.
+const stepsCard = page.locator('main li').filter({ hasText: 'Study Italian verbs' })
+check(await stepsCard.getByText('0/2 steps').isVisible(), 'the task card shows step progress')
+await stepsCard.getByRole('button', { name: /^Show steps/ }).click()
+await stepsCard.getByTestId('subtask-list').getByText('Do the exercises').click()
+check(await stepsCard.getByText('1/2 steps').waitFor({ timeout: 3000 }).then(() => true, () => false), 'ticking a step on the card updates the progress')
+await stepsCard.getByRole('button', { name: /^Hide steps/ }).click()
+await page.waitForTimeout(300)
 
 // Drag the last task to the top.
 const rows = page.locator('main ul').first().locator('li')
@@ -112,6 +150,12 @@ await rows.first().getByRole('button', { name: 'Focus now' }).click()
 await page.waitForTimeout(300)
 check(await page.getByRole('heading', { name: 'Study Italian verbs' }).isVisible(), 'Focus now loads the task into the hero')
 check(await page.getByText('What you need').isVisible(), 'focus panel lists the tools')
+check(await page.locator('main').getByText('1/2 steps').isVisible(), 'focus panel shows step progress')
+await page.locator('main').getByTestId('subtask-list').getByText('Read chapter 4').click()
+await page.waitForTimeout(500)
+const focusSteps = (await stored()).data.tasks.find((x) => x.title === 'Study Italian verbs').subtasks
+check(focusSteps.every((x) => x.isCompleted) && (await page.locator('main').getByText('2/2 steps').isVisible()), 'steps can be ticked off in the focus panel')
+check((await stored()).data.tasks.find((x) => x.title === 'Study Italian verbs').tools.length === 3, 'ticking steps leaves the tools untouched')
 check(
   (await page.locator('main').getByRole('button', { name: /^Open YouTube/ }).count()) === 1,
   'a pasted YouTube link becomes a clickable tool'
@@ -139,7 +183,7 @@ const slot = await page.evaluate(() => {
   return { x: column.x + column.width / 2, y: body.y + body.height / 2 }
 })
 await drag(page, await center(backlogItem), slot)
-check((await page.locator('.ff-ev').count()) === 1, 'dragging a task onto the grid creates a time block')
+check((await page.locator('.fc-timegrid-event .ff-ev').count()) === 1, 'dragging a task onto the grid creates a time block')
 check((await backlogItem.count()) === 0, 'scheduled task leaves the backlog')
 let saved = await page.waitForTimeout(500).then(stored)
 const block = saved.data.events[0]
@@ -177,8 +221,43 @@ check(
   'converting a block creates a linked task'
 )
 
+// A task with a date but no time sits in the Flexible row of its day.
+await api_goto(page, '2026-11-20')
+const flexible = page.locator('.fc-daygrid-event .ff-ev-task').filter({ hasText: 'Study' })
+check((await flexible.count()) === 1, 'a dated task with no time appears in the Flexible row')
+check((await page.locator('.fc-timegrid-axis').filter({ hasText: 'Flexible' }).count()) >= 1, 'the row is labelled Flexible')
+await shot(page, '06b-flexible-row')
+await flexible.click()
+const peek = page.getByRole('dialog')
+await peek.waitFor()
+check(await peek.getByRole('button', { name: 'Focus now' }).isVisible(), 'clicking it offers Focus now')
+check(await peek.getByText('2/2 steps').isVisible(), 'and shows its steps')
+await page.keyboard.press('Escape')
+await page.waitForTimeout(350)
+// Drag it down onto an hour to give it a time.
+const lane = await page.evaluate(() => {
+  const body = document.querySelector('.fc-timegrid-body').closest('.fc-scroller').getBoundingClientRect()
+  return body.y + body.height / 2
+})
+const chip = await center(flexible)
+await drag(page, chip, { x: chip.x, y: lane })
+saved = await page.waitForTimeout(600).then(stored)
+const study = saved.data.tasks.find((x) => x.title === 'Study Italian verbs')
+const studyBlock = saved.data.events.find((e) => e.taskId === study.id)
+check(!!studyBlock && Date.parse(studyBlock.end) - Date.parse(studyBlock.start) === 60 * 60000, 'dragging it onto an hour creates a time block of its estimated length')
+check((await flexible.count()) === 0, 'it leaves the Flexible row once it has a time')
+check(study.subtasks.length === 2 && study.tools.length === 3, 'scheduling keeps its steps and tools')
+// Drag the block back up: it becomes flexible again, on the same day.
+const blockEl = page.locator('.fc-timegrid-event').filter({ hasText: 'Study' })
+const from = await blockEl.boundingBox()
+await drag(page, { x: from.x + from.width / 2, y: from.y + 8 }, { x: chip.x, y: chip.y })
+saved = await page.waitForTimeout(600).then(stored)
+check(!saved.data.events.some((e) => e.taskId === study.id) && (await flexible.count()) === 1, 'dragging a task block back to the Flexible row removes its time')
+check(saved.data.tasks.find((x) => x.id === study.id).dueDate === '2026-11-20', 'and keeps its day')
+
 await page.getByRole('radio', { name: 'Month' }).click()
 await page.waitForSelector('.fc-daygrid-day')
+check((await page.locator('.fc-daygrid-event .ff-ev-task').filter({ hasText: 'Study' }).count()) === 1, 'the task is marked on the month view too')
 await shot(page, '07-calendar-month')
 await page.getByRole('radio', { name: 'Day' }).click()
 await page.waitForSelector('.fc-timeGridDay-view')

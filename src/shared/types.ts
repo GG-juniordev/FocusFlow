@@ -25,11 +25,22 @@ export interface ToolRef {
 /** A tool in the user's library (Settings → Tools & resources). */
 export type LibraryTool = ToolRef & { id: string }
 
+/** One step in a task's checklist. */
+export interface Subtask {
+  id: string
+  title: string
+  isCompleted: boolean
+  /** Order within the task, 0-based. */
+  position: number
+}
+
 export interface Task {
   id: string
   title: string
   notes: string
   tools: ToolRef[]
+  /** Ordered checklist of steps. */
+  subtasks: Subtask[]
   /** Estimated duration in minutes. */
   estimateMin: number
   priority: Priority
@@ -113,6 +124,7 @@ export type Action =
   | { type: 'task/remove'; id: string }
   | { type: 'task/reorder'; ids: string[] }
   | { type: 'task/setStatus'; id: string; status: TaskStatus }
+  | { type: 'task/toggleSubtask'; taskId: string; subtaskId: string }
   | { type: 'event/upsert'; event: EventDraft }
   | { type: 'event/remove'; id: string }
   | { type: 'event/toTask'; id: string; taskId: string }
@@ -145,8 +157,9 @@ export type CloudPhase =
   | 'local' // not signed in: everything stays on this PC
   | 'choose' // signed in, waiting for the user to decide what happens to local data
   | 'syncing'
-  | 'synced'
-  | 'offline' // signed in but the cloud is unreachable; changes are queued
+  | 'synced' // nothing waiting to be uploaded
+  | 'pending' // signed in, with local changes that have not been synced yet
+  | 'offline' // the last sync could not reach the cloud; changes are kept for the next one
   | 'error'
 
 export interface CloudState {
